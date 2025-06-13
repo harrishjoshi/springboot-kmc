@@ -2,10 +2,10 @@ package com.example.blogapi.controller;
 
 
 import com.example.blogapi.dto.BlogCreateRequest;
+import com.example.blogapi.dto.BlogResponse;
 import com.example.blogapi.dto.BlogUpdateRequest;
 import com.example.blogapi.service.BlogService;
 import jakarta.validation.Valid;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,12 +26,12 @@ public class BlogController {
     }
 
     @GetMapping
-    List<BlogCreateRequest> getAllBlogs() {
+    List<BlogResponse> getAllBlogs() {
         return blogService.getAllBlogs();
     }
 
     @GetMapping("{id}")
-    BlogCreateRequest getById(@PathVariable Long id) {
+    BlogResponse getById(@PathVariable Long id) {
         return blogService.findById(id);
     }
 
