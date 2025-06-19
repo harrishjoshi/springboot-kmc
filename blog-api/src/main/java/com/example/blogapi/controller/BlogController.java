@@ -35,6 +35,11 @@ public class BlogController {
         return blogService.findById(id);
     }
 
+    @GetMapping("{slug}")
+    BlogResponse getBySlug(@PathVariable String slug) {
+        return blogService.findBySlug(slug);
+    }
+
     @PutMapping("{id}")
     void update(@PathVariable Long id,
                 @RequestBody BlogUpdateRequest request) {
