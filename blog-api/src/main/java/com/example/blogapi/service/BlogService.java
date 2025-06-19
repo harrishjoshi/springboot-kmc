@@ -68,6 +68,22 @@ public class BlogService {
         return blogResponse;
     }
 
+    public BlogResponse findBySlug(String slug) {
+        BlogResponse blogResponse = null;
+        Optional<Blog> blogOpt = blogRepository.findBySlug(slug);
+
+        if (blogOpt.isPresent()) {
+            Blog blog = blogOpt.get();
+            blogResponse = new BlogResponse(
+                    blog.getId(), blog.getTitle(), blog.getSlug(),
+                    blog.getContent(), BlogUtil.convertToTags(blog.getTags()),
+                    blog.isDeleted()
+            );
+        }
+
+        return blogResponse;
+    }
+
     public void update(Long id, BlogUpdateRequest request) {
         Optional<Blog> blogOpt = blogRepository.findById(id);
 
