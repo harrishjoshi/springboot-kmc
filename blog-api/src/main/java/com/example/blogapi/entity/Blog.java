@@ -28,6 +28,10 @@ public class Blog {
     @Column(nullable = false)
     private String tags;
 
+    @OneToOne
+    @JoinColumn(name = "author_id")
+    private User author;
+
     @Column(name = "is_deleted", nullable = false)
     private boolean deleted = false;
 }
