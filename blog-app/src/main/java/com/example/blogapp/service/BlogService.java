@@ -6,6 +6,7 @@ import com.example.blogapp.repository.BlogRepository;
 import com.example.blogapp.util.BlogUtil;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,9 +29,11 @@ public class BlogService {
         return blogRepository.findById(id);
     }
 
-    public void save(Blog blog, Long userId) {
-        User user = userId != null ? userService.findById(userId).orElse(null) : null;
-        blog.setAuthor(user);
+    public void save(Blog blog, List<Long> authorIds) {
+        if (authorIds != null && !authorIds.isEmpty()) {
+            List<User> validAuthors = userService.findAllByIds(authorIds);
+            blog.setAuthors(new HashSet<>(validAuthors));
+        }
 
         blog.setSlug(BlogUtil.generateSlug(blog.getTitle()));
 

@@ -23,7 +23,15 @@
         <tr th:each="blog : ${blogs}" th:id="'blog-' + ${blog.id}">
             <td th:text="${blog.id}"></td>
             <td th:text="${blog.title}"></td>
-            <td th:text="${blog.author?.username} ?: 'No Author'"></td>
+            <td>
+                <span th:if="${!#lists.isEmpty(blog.authors)}">
+                    <span th:each="author, iterStat : ${blog.authors}">
+                        <span th:text="${author.username}"></span>
+                        <span th:if="${!iterStat.last}">, </span>
+                    </span>
+                </span>
+                <span th:if="${#lists.isEmpty(blog.authors)}">No Authors</span>
+            </td>
             <td th:text="${blog.createdDate}"></td>
             <td>
                 <a th:href="@{/blogs/edit/{id}(id=${blog.id})}" class="btn btn-primary btn-sm">Edit</a>
