@@ -5,6 +5,9 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @Entity
 @Table(name = "blogs")
 @Getter
@@ -24,9 +27,13 @@ public class Blog extends BaseEntity {
     @Column(nullable = false)
     private String tags;
 
-    @ManyToOne
-    @JoinColumn(name = "author_id")
-    private User author;
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+        name = "blog_authors",
+        joinColumns = @JoinColumn(name = "blog_id"),
+        inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
+    private Set<User> authors = new HashSet<>();
 
     @Column(name = "is_deleted", nullable = false)
     private boolean deleted = false;
