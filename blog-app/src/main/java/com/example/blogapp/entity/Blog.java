@@ -27,13 +27,20 @@ public class Blog extends BaseEntity {
     @Column(nullable = false)
     private String tags;
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
         name = "blog_authors",
         joinColumns = @JoinColumn(name = "blog_id"),
         inverseJoinColumns = @JoinColumn(name = "user_id")
     )
     private Set<User> authors = new HashSet<>();
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id")
+    private Category category;
+
+    @OneToMany(mappedBy = "blog", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Comment> comments = new HashSet<>();
 
     @Column(name = "is_deleted", nullable = false)
     private boolean deleted = false;

@@ -22,11 +22,11 @@ public class BlogService {
     }
 
     public List<Blog> findAll() {
-        return blogRepository.findAll();
+        return blogRepository.findAllWithAuthors();
     }
 
     public Optional<Blog> findById(Long id) {
-        return blogRepository.findById(id);
+        return blogRepository.findByIdWithAuthors(id);
     }
 
     public void save(Blog blog, List<Long> authorIds) {
