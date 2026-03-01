@@ -30,7 +30,7 @@ class TestController {
             @ApiResponse(responseCode = "200", description = "Successfully accessed public endpoint",
                     content = @Content(schema = @Schema(implementation = MessageResponse.class)))
     })
-    @GetMapping("/public")
+    @GetMapping("public")
     ResponseEntity<MessageResponse> publicEndpoint() {
         return ResponseEntity.ok(new MessageResponse("This is a public endpoint"));
     }
@@ -71,7 +71,7 @@ class TestController {
             @ApiResponse(responseCode = "403", description = "Forbidden - User does not have ADMIN role",
                     content = @Content)
     })
-    @GetMapping("/admin")
+    @GetMapping("admin")
     @PreAuthorize("hasRole('ADMIN')")
     ResponseEntity<MessageResponse> adminEndpoint() {
         return ResponseEntity.ok(new MessageResponse("This is an admin endpoint"));
