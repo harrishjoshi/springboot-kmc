@@ -1,0 +1,62 @@
+# GraalVM Native Image build for Spring Boot application
+# This creates a native executable with faster startup and lower memory usage
+
+# Stage 1: Build native image using GraalVM
+FROM ghcr.io/graalvm/native-image-community:21 AS build
+
+# Install required tools
+RUN microdnf install -y findutils
+
+WORKDIR /app
+
+# Copy Maven wrapper and pom.xml
+COPY mvnw .
+COPY .mvn .mvn
+COPY pom.xml .
+
+# Make mvnw executable
+RUN chmod +x ./mvnw
+
+# Download dependencies
+RUN ./mvnw dependency:go-offline -B || true
+
+# Copy source code
+COPY src ./src
+
+# Build native image
+# Note: This can take several minutes
+RUN ./mvnw -Pnative native:compile -DskipTests
+
+# Stage 2: Create minimal runtime image
+FROM debian:bookworm-slim
+
+WORKDIR /app
+
+# Install required runtime libraries
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    ca-certificates \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create non-root user
+RUN groupadd -r authuser && useradd -r -g authuser authuser
+
+# Copy the native executable from build stage
+COPY --from=build /app/target/auth-service /app/auth-service
+
+# Change ownership
+RUN chown authuser:authuser /app/auth-service
+
+# Switch to non-root user
+USER authuser:authuser
+
+# Expose application port
+EXPOSE 8080
+
+# Health check using curl (standard in Debian)
+HEALTHCHECK --interval=30s --timeout=3s --start-period=60s --retries=3 \
+  CMD curl --fail --silent http://localhost:8080/actuator/health || exit 1
+
+# Run the native executable
+ENTRYPOINT ["/app/auth-service"]

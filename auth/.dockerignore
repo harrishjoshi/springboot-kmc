@@ -1,0 +1,44 @@
+# Maven build artifacts
+target/
+!.mvn/wrapper/maven-wrapper.jar
+*.class
+
+# IDE files
+.idea/
+.vscode/
+.settings/
+.classpath
+.project
+.factorypath
+*.iml
+*.iws
+*.ipr
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Documentation
+*.md
+HELP.md
+docs/
+
+# Logs
+logs/
+*.log
+
+# OS specific
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# Test files (optional - uncomment if you want to exclude tests from Docker image)
+# src/test/
+
+# Docker files
+docker-compose.yml
+Dockerfile
+.dockerignore
