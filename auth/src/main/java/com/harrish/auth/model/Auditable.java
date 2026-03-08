@@ -31,12 +31,12 @@ public abstract class Auditable {
     private LocalDateTime updatedAt;
 
     @CreatedBy
-    @ManyToOne
+    @ManyToOne(fetch = jakarta.persistence.FetchType.LAZY)
     @JoinColumn(name = "created_by_id")
     private User createdBy;
 
     @LastModifiedBy
-    @ManyToOne
+    @ManyToOne(fetch = jakarta.persistence.FetchType.LAZY)
     @JoinColumn(name = "updated_by_id")
     private User updatedBy;
 }

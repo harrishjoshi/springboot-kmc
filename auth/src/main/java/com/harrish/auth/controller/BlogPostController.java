@@ -19,7 +19,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -103,7 +105,12 @@ class BlogPostController {
     @PostMapping
     ResponseEntity<BlogPostResponse> createBlogPost(@Valid @RequestBody CreateBlogPostRequest request) {
         BlogPostResponse response = blogPostService.createBlogPost(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        // Build Location header with URI of the created resource (REST best practice)
+        URI location = ServletUriComponentsBuilder.fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(response.getId())
+                .toUri();
+        return ResponseEntity.created(location).body(response);
     }
 
     @Operation(
