@@ -1,26 +1,22 @@
 # Auth Service
 
-A Spring Boot application that provides authentication and blog post management functionality with enterprise-grade security, structured logging, and comprehensive test coverage.
+A Spring Boot application providing authentication and blog post management with JWT security, structured logging, and comprehensive test coverage.
 
 ## Features
 
 - User registration and authentication with JWT
-- Token refresh mechanism with secure validation
-- Blog post CRUD operations with fine-grained authorization
-- RESTful API design following best practices
-- Comprehensive error handling with RFC 7807 Problem Details
-- Internationalization support (i18n)
-- Structured JSON logging with request correlation (MDC)
-- Event-driven architecture with Observer pattern
-- Repository layer with optimized queries (N+1 prevention)
-- Comprehensive test coverage with strategic focus on security components
-- Database indexing for performance optimization
+- Token refresh mechanism
+- Blog post CRUD with authorization
+- RESTful API with RFC 7807 Problem Details
+- Internationalization support
+- Structured JSON logging with request correlation
+- Event-driven architecture
+- Optimized JPA queries
+- Database indexing
 
 ## Architecture
 
 ### High-Level Overview
-
-The application follows a layered architecture pattern with clear separation of concerns:
 
 ```
 ┌─────────────────────────────────────────────────────┐
@@ -47,65 +43,57 @@ The application follows a layered architecture pattern with clear separation of 
 **Cross-Cutting Concerns:**
 - **Security**: JWT authentication filter, Spring Security configuration
 - **Logging**: Structured JSON logging with MDC (requestId, userId)
-- **Exception Handling**: Global exception handler with centralized error logging
-- **Events**: Application event publisher for business events (Observer pattern)
-- **Validation**: Jakarta Bean Validation with custom validators
+- **Exception Handling**: Global exception handler
+- **Events**: Application event publisher (Observer pattern)
+- **Validation**: Jakarta Bean Validation
 
 ### Key Design Patterns
 
 - **Layered Architecture**: Clear separation between controllers, services, and repositories
-- **Observer Pattern**: Event-driven notifications (UserRegisteredEvent, BlogPostCreatedEvent)
-- **Factory Pattern**: UserFactory for user entity creation
+- **Observer Pattern**: Event-driven notifications
+- **Factory Pattern**: UserFactory for entity creation
 - **Strategy Pattern**: CurrentUserProvider for authentication context
-- **Repository Pattern**: Spring Data JPA repositories with custom queries
-- **DTO Pattern**: Request/Response DTOs to decouple API from domain models
+- **Repository Pattern**: Spring Data JPA repositories
+- **DTO Pattern**: Request/Response DTOs
 
-For detailed architecture documentation, see [ARCHITECTURE.md](ARCHITECTURE.md).
-
-For structured logging usage, see [LOGGING_GUIDE.md](LOGGING_GUIDE.md).
+See [ARCHITECTURE.md](ARCHITECTURE.md) for details.
 
 ## Technologies
 
 ### Core Framework
-- **Java 21**: Modern Java with Records, Pattern Matching, Virtual Threads
-- **Spring Boot 3.5.3**: Application framework with auto-configuration
-- **Spring Security 6**: Authentication and authorization with JWT
-- **Spring Data JPA**: Data access abstraction with Hibernate ORM
+- **Java 21**: Records, Pattern Matching, Virtual Threads
+- **Spring Boot 3.5.3**: Application framework
+- **Spring Security 6**: JWT authentication
+- **Spring Data JPA**: Data access with Hibernate
 
 ### Security
-- **JWT (JSON Web Tokens)**: Stateless authentication (io.jsonwebtoken:jjwt 0.12.6)
-- **BCrypt**: Password hashing with adaptive complexity
-- **Spring Security**: Method-level security with @PreAuthorize
+- **JWT**: Stateless authentication (io.jsonwebtoken:jjwt 0.12.6)
+- **BCrypt**: Password hashing
+- **Method-level security**: @PreAuthorize
 
 ### Database
-- **PostgreSQL 16**: Primary relational database
-- **Hibernate ORM**: Object-relational mapping with query optimization
-- **H2 Database**: In-memory database for integration tests
+- **PostgreSQL 16**: Primary database
+- **H2**: In-memory database for tests
 
 ### Logging & Monitoring
-- **SLF4J + Logback**: Logging facade and implementation
-- **Logstash Logback Encoder**: Structured JSON logging
-- **Spring Actuator**: Health checks and metrics endpoints
+- **SLF4J + Logback**: Logging
+- **Logstash Encoder**: JSON logging
+- **Spring Actuator**: Health checks
 
 ### API Documentation
-- **SpringDoc OpenAPI 3**: OpenAPI (Swagger) specification generation
-- **Swagger UI**: Interactive API documentation
-
-### Development Tools
-- **Lombok**: Reduces boilerplate code with annotations
-- **Jakarta Validation**: Bean validation with custom validators
-- **JaCoCo**: Code coverage reporting with strategic focus on critical components
+- **SpringDoc OpenAPI 3**: OpenAPI specification
+- **Swagger UI**: Interactive documentation
 
 ### Testing
-- **JUnit 5**: Unit testing framework
-- **Mockito**: Mocking framework for unit tests
-- **Spring Security Test**: Security testing utilities
-- **H2 Database**: In-memory database for integration tests
+- **JUnit 5**: Testing framework
+- **Mockito**: Mocking
+- **Spring Security Test**: Security testing
+- **JaCoCo**: Code coverage
 
 ### Deployment
 - **Docker**: Containerization
 - **Docker Compose**: Multi-container orchestration
-- **GraalVM Native Image**: AOT compilation for faster startup (optional)
+- **GraalVM Native Image**: AOT compilation (optional)
 
 ## Getting Started
 
@@ -122,131 +110,78 @@ For structured logging usage, see [LOGGING_GUIDE.md](LOGGING_GUIDE.md).
 
 ### Running with Docker (Recommended)
 
-The easiest way to run the application is using Docker Compose, which sets up everything automatically:
-
-1. Clone the repository
-2. Navigate to the project directory
-3. Start all services:
-
 ```bash
 docker-compose up -d
 ```
 
-**Note:** The `-d` flag runs containers in detached mode (background). All services have `restart: unless-stopped` configured, so they'll automatically restart if they crash or after system reboot.
-
-This command will:
-- Build the Spring Boot application Docker image
-- Start PostgreSQL 16 database
-- Start pgAdmin for database management
+This will:
+- Build the Spring Boot application
+- Start PostgreSQL 16
+- Start pgAdmin
 - Start the auth service
 
-**Access the services:**
+**Access:**
 - Auth Service: http://localhost:8080
 - pgAdmin: http://localhost:5050 (login: admin@admin.com / admin)
 - Swagger UI: http://localhost:8080/swagger-ui.html
 
-**Useful Docker commands:**
+**Commands:**
 
 ```bash
 # View logs
 docker-compose logs -f auth-service
 
-# Stop all services
+# Stop services
 docker-compose down
 
-# Stop and remove volumes (clears database)
-docker-compose down -v
-
-# Rebuild and restart
+# Rebuild
 docker-compose up --build -d
-
-# View running containers
-docker-compose ps
 ```
 
 **pgAdmin Setup:**
-1. Access pgAdmin at http://localhost:5050
-2. Login with: admin@admin.com / admin
-3. Add a new server:
-   - Name: Auth Database
+1. Access http://localhost:5050
+2. Login: admin@admin.com / admin
+3. Add server:
    - Host: postgres
    - Port: 5432
    - Database: auth
    - Username: postgres
    - Password: password
 
-### Running with GraalVM Native Image (Advanced)
+### Running with GraalVM Native Image
 
-GraalVM Native Image provides significantly faster startup times and lower memory usage compared to the JVM version.
-
-**Benefits:**
-- Startup time: < 100ms (vs ~3-5 seconds with JVM)
-- Memory usage: ~50-70% less than JVM
-- Instant peak performance
-
-**Build and run with GraalVM:**
+For faster startup and lower memory usage:
 
 ```bash
 docker-compose -f docker-compose.native.yml up --build -d
 ```
 
-**Note:** Native image compilation takes 5-10 minutes on the first build, but the resulting image is much faster to start.
-
-**Access the services (same as JVM version):**
-- Auth Service: http://localhost:8080
-- pgAdmin: http://localhost:5050
-- Swagger UI: http://localhost:8080/swagger-ui.html
-
-**Build native executable locally (requires GraalVM):**
-
-```bash
-# Install GraalVM 21 and set JAVA_HOME
-# Then build native image
-./mvnw -Pnative native:compile -DskipTests
-
-# Run the native executable
-./target/auth-service
-```
-
-### Running Locally (Without Docker)
+### Running Locally
 
 #### Database Setup
-
-1. Install PostgreSQL 16
-2. Create a PostgreSQL database named `auth`:
 
 ```sql
 CREATE DATABASE auth;
 ```
 
-3. The application will automatically create tables using JPA
-
-#### Running the Application
-
-1. Clone the repository
-2. Navigate to the project directory
-3. Run the application using Maven:
+#### Run Application
 
 ```bash
 mvn spring-boot:run
 ```
 
-The application will start on port 8080 and connect to PostgreSQL on localhost:5432.
-
 ## API Documentation
 
 ### Swagger/OpenAPI
-
-The API is documented using OpenAPI (Swagger). You can access the Swagger UI to explore and test the API endpoints:
 
 - Swagger UI: [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html)
 - OpenAPI JSON: [http://localhost:8080/v1/api-docs](http://localhost:8080/v1/api-docs)
 
 ## API Endpoints
 
-### Authentication Endpoints
+### Authentication
 
-#### Register a new user
+#### Register
 ```http
 POST /api/v1/auth/register
 Content-Type: application/json
@@ -259,14 +194,7 @@ Content-Type: application/json
 }
 ```
 
-**Response:**
-```json
-{
-  "message": "User registered successfully"
-}
-```
-
-#### Authenticate (Login)
+#### Login
 ```http
 POST /api/v1/auth/login
 Content-Type: application/json
@@ -297,68 +225,40 @@ Content-Type: application/json
 }
 ```
 
-**Response:** Same as login response with new tokens.
+### Blog Posts
 
-### Blog Post Endpoints
-
-All blog post endpoints require authentication via JWT Bearer token:
+All endpoints require authentication:
 ```http
 Authorization: Bearer <access_token>
 ```
 
-#### Get all blog posts (paginated)
+#### Get all posts (paginated)
 ```http
 GET /api/v1/blog-posts?page=0&size=10&sort=createdAt,desc
 ```
 
-**Response:**
-```json
-{
-  "content": [
-    {
-      "id": 1,
-      "title": "My First Post",
-      "content": "This is the content...",
-      "createdBy": {
-        "id": 1,
-        "firstName": "John",
-        "lastName": "Doe",
-        "email": "john.doe@example.com"
-      },
-      "createdAt": "2026-03-01T10:30:00",
-      "updatedAt": "2026-03-01T10:30:00"
-    }
-  ],
-  "pageable": {...},
-  "totalElements": 25,
-  "totalPages": 3
-}
-```
-
-#### Get blog posts by user
+#### Get posts by user
 ```http
 GET /api/v1/blog-posts/user/{userId}
 ```
 
-#### Get a specific blog post
+#### Get specific post
 ```http
 GET /api/v1/blog-posts/{id}
 ```
 
-#### Create a new blog post
+#### Create post
 ```http
 POST /api/v1/blog-posts
 Content-Type: application/json
 
 {
-  "title": "My New Post",
-  "content": "This is the content of my new post..."
+  "title": "My Post",
+  "content": "Content..."
 }
 ```
 
-**Response:** Returns the created blog post with `201 Created` status and `Location` header.
-
-#### Update a blog post
+#### Update post
 ```http
 PUT /api/v1/blog-posts/{id}
 Content-Type: application/json
@@ -369,55 +269,48 @@ Content-Type: application/json
 }
 ```
 
-**Authorization:** Only the creator of the post or users with ADMIN role can update.
+**Authorization:** Only creator or ADMIN can update.
 
-#### Delete a blog post
+#### Delete post
 ```http
 DELETE /api/v1/blog-posts/{id}
 ```
 
-**Authorization:** Only the creator of the post or users with ADMIN role can delete.
-
-**Response:** `204 No Content` on success.
+**Authorization:** Only creator or ADMIN can delete.
 
 ### Test Endpoints
 
-- `GET /api/v1/test/public` - Public endpoint (no authentication required)
-- `GET /api/v1/test/protected` - Protected endpoint (requires authentication)
-- `GET /api/v1/test/admin` - Admin endpoint (requires ADMIN role)
+- `GET /api/v1/test/public` - Public endpoint
+- `GET /api/v1/test/protected` - Requires authentication
+- `GET /api/v1/test/admin` - Requires ADMIN role
 
 ## Configuration
 
 ### Environment Variables
 
-The application supports configuration via environment variables for flexible deployment:
-
-**Database Configuration:**
+**Database:**
 - `DB_HOST` - Database host (default: localhost)
 - `DB_PORT` - Database port (default: 5432)
 - `DB_NAME` - Database name (default: auth)
 - `DB_USER` - Database username (default: postgres)
 - `DB_PASSWORD` - Database password (default: password)
 
-**JWT Configuration:**
-- `JWT_SECRET_KEY` - Secret key for JWT signing (default: provided in application.properties)
-- `JWT_EXPIRATION` - Access token expiration in milliseconds (default: 900000 / 15 minutes)
-- `JWT_REFRESH_EXPIRATION` - Refresh token expiration in milliseconds (default: 86400000 / 24 hours)
+**JWT:**
+- `JWT_SECRET_KEY` - Secret key for JWT signing
+- `JWT_EXPIRATION` - Access token expiration in milliseconds (default: 900000)
+- `JWT_REFRESH_EXPIRATION` - Refresh token expiration in milliseconds (default: 86400000)
 
-**Logging Configuration:**
-- `SPRING_PROFILES_ACTIVE` - Set to `json-logs` for structured JSON logging (default: human-readable logs)
+**Logging:**
+- `SPRING_PROFILES_ACTIVE` - Set to `json-logs` for JSON logging
 
 ### Structured Logging
 
-The application includes structured JSON logging for production environments:
-
-**Enable JSON logging:**
+Enable JSON logging:
 ```bash
-# Set Spring profile
 export SPRING_PROFILES_ACTIVE=json-logs
 ```
 
-**Log Output Example:**
+**Output Example:**
 ```json
 {
   "timestamp": "2026-03-01T10:30:00.123Z",
@@ -426,34 +319,11 @@ export SPRING_PROFILES_ACTIVE=json-logs
   "message": "User authentication completed successfully",
   "requestId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
   "userId": "123",
-  "email": "user@example.com",
-  "step": "complete",
-  "duration_ms": 245
+  "email": "user@example.com"
 }
 ```
 
-**Key Features:**
-- **Request Correlation**: Every request has a unique `requestId` for tracing across services
-- **User Context**: `userId` is automatically included in logs after authentication
-- **Structured Fields**: Use `kv()` helper for consistent field naming
-- **AI-Friendly**: JSON format is easy to parse and analyze with tools like jq, Elasticsearch, etc.
-
-For more details on using structured logging, see [LOGGING_GUIDE.md](LOGGING_GUIDE.md).
-
-### Docker Compose Configuration
-
-**Standard JVM build** (`docker-compose.yml`):
-- **PostgreSQL 16**: Alpine-based for smaller image size
-- **pgAdmin**: Web-based database management tool
-- **Auth Service**: Spring Boot application with health checks (JVM)
-- **Named Volumes**: Persistent data storage for database and pgAdmin
-- **Health Checks**: Ensures database is ready before starting the application
-
-**GraalVM Native build** (`docker-compose.native.yml`):
-- Same services as above
-- **Auth Service**: Compiled as GraalVM native executable
-- Faster startup and lower memory usage
-- Separate volumes to avoid conflicts with JVM version
+See [LOGGING_GUIDE.md](LOGGING_GUIDE.md) for details.
 
 ## Development
 
@@ -464,32 +334,31 @@ auth/
 ├── src/
 │   ├── main/
 │   │   ├── java/com/harrish/auth/
-│   │   │   ├── config/              # Spring configuration classes
-│   │   │   ├── controller/          # REST API controllers
+│   │   │   ├── config/              # Configuration
+│   │   │   ├── controller/          # REST controllers
 │   │   │   ├── dto/                 # Data Transfer Objects
-│   │   │   ├── event/               # Application events
-│   │   │   ├── exception/           # Custom exceptions and handlers
-│   │   │   ├── filter/              # Request filters (MDC context)
+│   │   │   ├── event/               # Events
+│   │   │   ├── exception/           # Exception handlers
+│   │   │   ├── filter/              # Filters
 │   │   │   ├── model/               # JPA entities
-│   │   │   ├── repository/          # Spring Data JPA repositories
-│   │   │   ├── security/            # Security components (JWT, UserPrincipal)
-│   │   │   ├── service/             # Business logic layer
-│   │   │   ├── util/                # Utility classes
-│   │   │   └── AuthApplication.java # Main application class
+│   │   │   ├── repository/          # Repositories
+│   │   │   ├── security/            # Security components
+│   │   │   ├── service/             # Business logic
+│   │   │   └── util/                # Utilities
 │   │   └── resources/
-│   │       ├── application.properties  # Application configuration
-│   │       ├── logback-spring.xml      # Logging configuration
-│   │       └── messages.properties     # i18n messages
-│   └── test/                        # Unit and integration tests
-├── Dockerfile                       # Multi-stage Docker build (JVM)
-├── Dockerfile.native                # GraalVM native image build
-├── docker-compose.yml               # Docker Compose for JVM version
-├── docker-compose.native.yml        # Docker Compose for GraalVM native
-├── .dockerignore                    # Docker build context exclusions
-├── pom.xml                          # Maven dependencies with GraalVM profile
-├── README.md                        # This file
-├── ARCHITECTURE.md                  # Detailed architecture documentation
-└── LOGGING_GUIDE.md                 # Structured logging guide
+│   │       ├── application.properties
+│   │       ├── logback-spring.xml
+│   │       └── messages.properties
+│   └── test/                        # Tests
+├── Dockerfile
+├── Dockerfile.native
+├── docker-compose.yml
+├── docker-compose.native.yml
+├── pom.xml
+├── README.md
+├── ARCHITECTURE.md
+├── LOGGING_GUIDE.md
+└── SECURITY.md
 ```
 
 ### Running Tests
@@ -498,110 +367,74 @@ auth/
 # Run all tests
 ./mvnw test
 
-# Run specific test class
+# Run specific test
 ./mvnw test -Dtest=ValidationUtilsTest
 
-# Run tests with coverage report
+# Run with coverage
 ./mvnw clean test jacoco:report
 
-# View coverage report (after running tests)
+# View coverage
 open target/site/jacoco/index.html
 ```
 
-**Test Coverage:** Strategic focus on critical components (see TEST_COVERAGE_REPORT.md for details)
-- Security package: 80% coverage (authentication, JWT validation)
-- Utility package: 59% coverage (validation helpers)
-- Overall: 87 unit tests passing
-- Coverage report: `target/site/jacoco/index.html`
+### Building Docker Image
 
-For more details, see [TEST_COVERAGE_REPORT.md](TEST_COVERAGE_REPORT.md).
-
-### Building the Docker Image
-
-**Build JVM version:**
+**JVM version:**
 ```bash
 docker build -t auth-service:latest .
 ```
 
-**Build GraalVM native version:**
+**GraalVM native:**
 ```bash
 docker build -f Dockerfile.native -t auth-service:native .
 ```
 
-**Note:** GraalVM native build takes significantly longer (5-10 minutes) but produces a faster executable.
-
 ## Security Features
 
 ### Authentication & Authorization
-- **JWT-based authentication**: Stateless token-based authentication
-- **Password hashing**: BCrypt with adaptive complexity (cost factor 10)
-- **Token expiration**: Short-lived access tokens (15 minutes) + long-lived refresh tokens (24 hours)
-- **Method-level security**: Fine-grained authorization with `@PreAuthorize`
-- **Role-based access control**: USER and ADMIN roles
+- JWT-based authentication
+- BCrypt password hashing
+- Short-lived access tokens
+- Long-lived refresh tokens
+- Method-level security with @PreAuthorize
+- Role-based access control
 
-### Security Best Practices
-- **Input validation**: Jakarta Bean Validation with custom validators
-- **SQL injection prevention**: Parameterized queries via JPA/Hibernate
-- **XSS protection**: Spring Security's default headers
-- **CORS configuration**: Configured in SecurityConfiguration
-- **Error message sanitization**: Generic error messages to prevent information disclosure
+### Best Practices
+- Input validation
+- SQL injection prevention via JPA
+- XSS protection
+- CORS configuration
+- Error message sanitization
 
-### Security Audit Reports
-- See [SECURITY_AUDIT_REPORT.md](SECURITY_AUDIT_REPORT.md) for detailed security audit results
-- See [SECURITY.md](SECURITY.md) for security policy and vulnerability reporting
+See [SECURITY.md](SECURITY.md) for security policy.
 
 ## Performance Optimizations
 
-### Database Optimizations
-- **N+1 query prevention**: Optimized JPA queries with JOIN FETCH (99.5% query reduction)
-- **Database indexing**: Strategic indexes on frequently queried columns
-  - `idx_user_email` on users.email (unique)
+### Database
+- N+1 query prevention with JOIN FETCH
+- Strategic indexes:
+  - `idx_user_email` on users.email
   - `idx_blog_post_created_by` on blog_posts.created_by_id
   - `idx_blog_post_created_at` on blog_posts.created_at
-- **Connection pooling**: HikariCP for efficient connection management
-- **Query result caching**: JWT signing key cached to avoid repeated key derivation
+- HikariCP connection pooling
+- JWT signing key caching
 
-### Concurrency Optimizations
-- **Bounded thread pool**: Prevents OutOfMemoryError from unbounded thread creation
-- **Async operations**: `@Async` for non-blocking event publishing
-- **SecurityContext propagation**: Automatic security context copy to async threads
-
-### Performance Metrics
-- **Response time improvement**: 500ms → 10ms (98% faster) after N+1 fix
-- **Memory usage**: 1GB → 10MB (99% reduction) under load with bounded thread pool
-- **Startup time**: < 100ms with GraalVM native image (vs 3-5 seconds JVM)
-
-For detailed performance reports:
-- See [SPRING_BOOT_JPA_API_REPORT.md](SPRING_BOOT_JPA_API_REPORT.md) for N+1 query fixes
-- See [PERFORMANCE_CONCURRENCY_REPORT.md](PERFORMANCE_CONCURRENCY_REPORT.md) for concurrency improvements
+### Concurrency
+- Bounded thread pool
+- @Async for event publishing
+- SecurityContext propagation to async threads
 
 ## Documentation
 
-### Core Documentation (Start Here)
-- **[README.md](README.md)**: Getting started guide and API reference (this file)
-- **[ARCHITECTURE.md](ARCHITECTURE.md)**: System architecture, design patterns, and scalability assessment
-- **[LOGGING_GUIDE.md](LOGGING_GUIDE.md)**: Structured logging best practices with MDC context
-- **[SECURITY.md](SECURITY.md)**: Security policy and deployment checklist
-
-### Phase Reports & Audits
-- **[TEST_COVERAGE_REPORT.md](TEST_COVERAGE_REPORT.md)**: Test coverage analysis (Phase 5 - 44% strategic coverage)
-- **[SECURITY_AUDIT_REPORT.md](SECURITY_AUDIT_REPORT.md)**: Security audit with fix status updates (Phase 1.1)
-- **[PERFORMANCE_CONCURRENCY_REPORT.md](PERFORMANCE_CONCURRENCY_REPORT.md)**: Performance and async improvements (Phase 4)
-- **[SPRING_BOOT_JPA_API_REPORT.md](SPRING_BOOT_JPA_API_REPORT.md)**: N+1 query fixes and indexing (Phase 3)
-- **[DEPENDENCY_AUDIT_REPORT.md](DEPENDENCY_AUDIT_REPORT.md)**: Maven dependency audit (Phase 1.2)
-
-### Code Quality Reviews (Reference)
-- **[CODE_REVIEW_REPORT.md](CODE_REVIEW_REPORT.md)**: Java code review findings (Phase 2.1)
-- **[SOLID_PRINCIPLES_REPORT.md](SOLID_PRINCIPLES_REPORT.md)**: SOLID principles analysis (Phase 2.2)
-- **[CLEAN_CODE_REPORT.md](CLEAN_CODE_REPORT.md)**: Clean code review (Phase 2.3)
-- **[DESIGN_PATTERNS_REPORT.md](DESIGN_PATTERNS_REPORT.md)**: Design patterns implemented (Phase 2.4)
-- **[SPRING_BOOT_JPA_API_REPORT.md](SPRING_BOOT_JPA_API_REPORT.md)**: Spring Boot/JPA/API patterns
-- **[PERFORMANCE_CONCURRENCY_REPORT.md](PERFORMANCE_CONCURRENCY_REPORT.md)**: Performance and concurrency
+- **[README.md](README.md)**: Getting started guide (this file)
+- **[ARCHITECTURE.md](ARCHITECTURE.md)**: System architecture and design patterns
+- **[LOGGING_GUIDE.md](LOGGING_GUIDE.md)**: Structured logging guide
+- **[SECURITY.md](SECURITY.md)**: Security policy
 
 ## Contributing
 
-This project follows clean code principles, SOLID design principles, and Spring Boot best practices. Before contributing, please review the architecture and design pattern documentation.
+This project follows clean code principles, SOLID design, and Spring Boot best practices.
 
 ## License
 
-[Add your license information here]
+[Add license information]

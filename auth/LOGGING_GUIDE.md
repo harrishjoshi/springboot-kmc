@@ -15,16 +15,16 @@
 
 ## Overview
 
-The Auth Service uses **structured JSON logging** for production environments, making logs machine-readable and AI-friendly. This enables powerful log analysis, monitoring, and debugging.
+The Auth Service uses structured JSON logging for production, making logs machine-readable and analyzable.
 
 ### Why Structured Logging?
 
-**Traditional Logging** (Human-Readable):
+**Traditional Logging**:
 ```
-2026-03-01 10:30:45.123 INFO  [http-nio-8080-exec-1] c.h.a.s.AuthenticationService : User authenticated: john.doe@example.com
+2026-03-01 10:30:45.123 INFO c.h.a.s.AuthenticationService : User authenticated: john.doe@example.com
 ```
 
-**Structured Logging** (Machine-Readable JSON):
+**Structured Logging (JSON)**:
 ```json
 {
   "timestamp": "2026-03-01T10:30:45.123Z",
@@ -33,17 +33,15 @@ The Auth Service uses **structured JSON logging** for production environments, m
   "message": "User authentication completed successfully",
   "requestId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
   "userId": "123",
-  "email": "john.doe@example.com",
-  "step": "complete",
-  "duration_ms": 245
+  "email": "john.doe@example.com"
 }
 ```
 
 **Benefits**:
-- Easy to parse and analyze with tools (jq, Elasticsearch, Splunk)
-- Query by specific fields (e.g., find all logs for requestId)
-- Aggregate metrics (e.g., average duration_ms)
-- AI-friendly for automated analysis
+- Easy to parse and analyze
+- Query by specific fields
+- Aggregate metrics
+- Machine-readable
 
 ---
 
@@ -51,20 +49,15 @@ The Auth Service uses **structured JSON logging** for production environments, m
 
 ### Enable JSON Logging
 
-Set the Spring profile to `json-logs`:
-
 ```bash
 # Environment variable
 export SPRING_PROFILES_ACTIVE=json-logs
 
 # Or in application.properties
 spring.profiles.active=json-logs
-
-# Or as JVM argument
-java -jar app.jar --spring.profiles.active=json-logs
 ```
 
-### Basic Usage in Code
+### Basic Usage
 
 ```java
 import org.slf4j.Logger;
@@ -84,18 +77,16 @@ public class MyService {
 }
 ```
 
-**Output (JSON format)**:
+**Output**:
 ```json
 {
   "timestamp": "2026-03-01T10:30:00.123Z",
   "level": "INFO",
-  "logger": "com.example.MyService",
   "message": "Action performed",
   "userId": 123,
   "action": "create_post",
   "status": "success",
-  "requestId": "a1b2c3d4-...",
-  "thread": "http-nio-8080-exec-1"
+  "requestId": "a1b2c3d4-..."
 }
 ```
 
@@ -105,31 +96,22 @@ public class MyService {
 
 ### logback-spring.xml
 
-The logging configuration is in `src/main/resources/logback-spring.xml`:
+Located in `src/main/resources/logback-spring.xml`:
 
 ```xml
 <configuration>
     <!-- JSON Console Appender (production) -->
     <appender name="JSON_CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder class="net.logstash.logback.encoder.LogstashEncoder">
-            <!-- Include MDC fields -->
             <includeMdcKeyName>requestId</includeMdcKeyName>
             <includeMdcKeyName>userId</includeMdcKeyName>
-            
-            <!-- Customize field names -->
-            <fieldNames>
-                <timestamp>timestamp</timestamp>
-                <message>message</message>
-                <logger>logger</logger>
-                <level>level</level>
-            </fieldNames>
         </encoder>
     </appender>
     
     <!-- Human-Readable Console Appender (development) -->
     <appender name="HUMAN_CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} [requestId=%X{requestId:-none} userId=%X{userId:-none}] - %msg%n</pattern>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level %logger{36} - %msg%n</pattern>
         </encoder>
     </appender>
     
@@ -153,19 +135,16 @@ The logging configuration is in `src/main/resources/logback-spring.xml`:
 
 **Development** (human-readable):
 ```bash
-# No profile needed, human-readable is default
 ./mvnw spring-boot:run
 ```
 
 **Production** (JSON):
 ```bash
-# Set json-logs profile
 ./mvnw spring-boot:run -Dspring-boot.run.profiles=json-logs
 ```
 
 **Docker**:
 ```yaml
-# docker-compose.yml
 services:
   auth-service:
     environment:
@@ -176,7 +155,7 @@ services:
 
 ## Using Structured Logging
 
-### Import Required Classes
+### Import Classes
 
 ```java
 import org.slf4j.Logger;
@@ -184,15 +163,13 @@ import org.slf4j.LoggerFactory;
 import static net.logstash.logback.argument.StructuredArguments.kv;
 ```
 
-### Create Logger Instance
+### Create Logger
 
 ```java
 private static final Logger log = LoggerFactory.getLogger(YourClassName.class);
 ```
 
 ### Log with Structured Fields
-
-Use `kv("key", value)` to add structured fields:
 
 ```java
 log.info("User registered", 
@@ -201,21 +178,7 @@ log.info("User registered",
     kv("step", "complete"));
 ```
 
-**Output**:
-```json
-{
-  "message": "User registered",
-  "userId": 123,
-  "email": "user@example.com",
-  "step": "complete",
-  "requestId": "...",
-  "timestamp": "..."
-}
-```
-
 ### Measure Timing
-
-Track operation duration:
 
 ```java
 long startTime = System.currentTimeMillis();
@@ -233,9 +196,7 @@ log.info("Operation completed",
 log.info("Blog post created", 
     kv("blogPostId", blogPost.getId()),
     kv("userId", user.getId()),
-    kv("title", blogPost.getTitle()),
-    kv("action", "create"),
-    kv("step", "complete"));
+    kv("action", "create"));
 ```
 
 ### Log Errors with Context
@@ -248,7 +209,7 @@ try {
         kv("userId", userId),
         kv("orderId", orderId),
         kv("errorType", ex.getClass().getSimpleName()),
-        ex);  // Include stack trace
+        ex);
 }
 ```
 
@@ -256,7 +217,7 @@ try {
 
 ## MDC Context
 
-**MDC (Mapped Diagnostic Context)** automatically adds fields to all logs within a request.
+MDC (Mapped Diagnostic Context) automatically adds fields to all logs within a request.
 
 ### How MDC Works
 
@@ -264,9 +225,9 @@ try {
 HTTP Request arrives
     ↓
 RequestContextFilter
-    ├─ Generate requestId (UUID or from X-Request-ID header)
+    ├─ Generate requestId
     ├─ MDC.put("requestId", requestId)
-    ├─ Add X-Request-ID to response header
+    ├─ Add X-Request-ID to response
     │
     ↓
 JwtAuthenticationFilter (if authenticated)
@@ -274,17 +235,17 @@ JwtAuthenticationFilter (if authenticated)
     ├─ MDC.put("userId", userId)
     │
     ↓
-All subsequent logs include requestId and userId automatically
+All logs include requestId and userId automatically
     │
     ↓
 RequestContextFilter (finally block)
-    └─ MDC.clear()  // Cleanup to prevent memory leaks
+    └─ MDC.clear()
 ```
 
 ### MDC Fields
 
 **Always Present**:
-- `requestId`: Unique identifier for each HTTP request
+- `requestId`: Unique identifier for each request
 
 **Present After Authentication**:
 - `userId`: ID of authenticated user
@@ -299,35 +260,30 @@ log.info("User authenticated");
 {
   "message": "User authenticated",
   "requestId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
-  "userId": "123",  // Added by JwtAuthenticationFilter
-  "timestamp": "..."
+  "userId": "123"
 }
 ```
 
 ### Manual MDC Usage
 
-Add custom MDC fields (rare, usually automatic):
-
 ```java
 MDC.put("orderId", orderId.toString());
 try {
-    // All logs here include orderId
     log.info("Processing order");
 } finally {
-    MDC.remove("orderId");  // Cleanup
+    MDC.remove("orderId");
 }
 ```
 
 ### Async Operations and MDC
 
-MDC is thread-local, so it doesn't automatically propagate to async threads. The application handles this automatically:
+MDC is thread-local. The application automatically copies context to async threads:
 
 ```java
 @Async
 @EventListener
 public void handleEvent(SomeEvent event) {
-    // MDC context is automatically copied to this thread
-    // by TaskExecutor configuration
+    // MDC context automatically copied
     log.info("Event handled");  // Still has requestId, userId
 }
 ```
@@ -341,73 +297,60 @@ public void handleEvent(SomeEvent event) {
 **Good**:
 ```java
 log.info("User action", kv("userId", userId), kv("action", "create"));
-log.info("Order placed", kv("userId", userId), kv("orderId", orderId));
 ```
 
-**Bad** (inconsistent naming):
+**Bad**:
 ```java
-log.info("User action", kv("user_id", userId), kv("action", "create"));
-log.info("Order placed", kv("uid", userId), kv("order_id", orderId));
+log.info("User action", kv("user_id", userId), kv("uid", userId));
 ```
 
-### 2. Log Business Events, Not Implementation Details
+### 2. Log Business Events, Not Implementation
 
-**Good** (business context):
+**Good**:
 ```java
 log.info("Blog post published", 
     kv("blogPostId", id),
     kv("userId", userId),
-    kv("category", category),
     kv("action", "publish"));
 ```
 
-**Bad** (technical details):
+**Bad**:
 ```java
-log.info("Method updateBlogPostStatus called with id=" + id);
+log.info("Method updateBlogPostStatus called");
 ```
 
 ### 3. Use Step Markers for Flow Tracking
 
 ```java
 log.info("User registration started", kv("email", email), kv("step", "start"));
-// ... validation ...
 log.debug("Validation passed", kv("step", "validated"));
-// ... save user ...
-log.debug("User saved", kv("userId", user.getId()), kv("step", "saved"));
-// ... publish event ...
 log.info("User registration completed", kv("userId", user.getId()), kv("step", "complete"));
-```
-
-Query all logs for a specific flow:
-```bash
-jq 'select(.email == "user@example.com")' logs.json
 ```
 
 ### 4. Never Log Sensitive Data
 
 **NEVER LOG**:
-- Passwords (plaintext or hashed)
-- JWT tokens (access or refresh)
+- Passwords
+- JWT tokens
 - Credit card numbers
-- Social security numbers
-- API keys or secrets
+- API keys
 
 **Good**:
 ```java
-log.info("User authenticated", kv("userId", userId), kv("email", email));
+log.info("User authenticated", kv("userId", userId));
 ```
 
 **Bad**:
 ```java
-log.info("User authenticated", kv("password", password), kv("token", jwt));
+log.info("User authenticated", kv("password", password));
 ```
 
 ### 5. Log at Appropriate Levels
 
-- **ERROR**: Unrecoverable errors, service failures
-- **WARN**: Recoverable issues, security events (bad credentials, access denied)
-- **INFO**: Business events (registration, login, CRUD operations)
-- **DEBUG**: Technical details, flow steps, SQL queries
+- **ERROR**: Unrecoverable errors
+- **WARN**: Recoverable issues, security events
+- **INFO**: Business events
+- **DEBUG**: Technical details
 
 ### 6. Include Timing for Slow Operations
 
@@ -416,7 +359,7 @@ long startTime = System.currentTimeMillis();
 // ... database query ...
 long duration = System.currentTimeMillis() - startTime;
 
-if (duration > 1000) {  // Log if > 1 second
+if (duration > 1000) {
     log.warn("Slow database query", 
         kv("query", "findUsersByRole"),
         kv("duration_ms", duration));
@@ -425,27 +368,23 @@ if (duration > 1000) {  // Log if > 1 second
 
 ### 7. Log Once at Boundary
 
-**Good** (log once in GlobalExceptionHandler):
+**Good**:
 ```java
 @ExceptionHandler(Exception.class)
 ResponseEntity<ProblemDetail> handleException(Exception ex, HttpServletRequest request) {
     log.error("Unhandled exception", 
         kv("errorType", ex.getClass().getSimpleName()),
         kv("path", request.getRequestURI()),
-        kv("method", request.getMethod()),
         ex);
-    // ...
 }
 ```
 
-**Bad** (log at every layer):
+**Bad** (logging at every layer):
 ```java
 // Controller
 catch (Exception ex) { log.error("Error in controller", ex); throw ex; }
 // Service
 catch (Exception ex) { log.error("Error in service", ex); throw ex; }
-// Repository
-catch (Exception ex) { log.error("Error in repository", ex); throw ex; }
 ```
 
 ---
@@ -453,8 +392,6 @@ catch (Exception ex) { log.error("Error in repository", ex); throw ex; }
 ## Log Levels
 
 ### ERROR (Critical Issues)
-
-Use for unhandled exceptions and service failures:
 
 ```java
 log.error("Failed to connect to database", 
@@ -465,43 +402,34 @@ log.error("Failed to connect to database",
 
 ### WARN (Recoverable Issues)
 
-Use for handled exceptions and security events:
-
 ```java
 log.warn("Authentication failed - bad credentials", 
-    kv("email", email),
-    kv("attemptCount", attemptCount));
+    kv("email", email));
 
 log.warn("Access denied", 
     kv("userId", userId),
-    kv("resource", resourceId),
-    kv("requiredRole", "ADMIN"));
+    kv("resource", resourceId));
 ```
 
 ### INFO (Business Events)
 
-Use for important business operations:
-
 ```java
-log.info("User registered", kv("userId", userId), kv("email", email));
-log.info("Blog post created", kv("blogPostId", id), kv("userId", userId));
-log.info("Password changed", kv("userId", userId));
+log.info("User registered", kv("userId", userId));
+log.info("Blog post created", kv("blogPostId", id));
 ```
 
 ### DEBUG (Technical Details)
 
-Use for debugging and development:
-
 ```java
-log.debug("JWT token validated", kv("userId", userId), kv("expiresIn", expiresIn));
-log.debug("Query executed", kv("query", sql), kv("rows", rowCount));
+log.debug("JWT token validated", kv("userId", userId));
+log.debug("Query executed", kv("rows", rowCount));
 ```
 
 ---
 
 ## Analyzing Logs
 
-### Using jq (Command Line)
+### Using jq
 
 **Install jq**:
 ```bash
@@ -514,20 +442,20 @@ brew install jq
 
 **Filter by field**:
 ```bash
-# Find all logs for specific user
+# Find logs for specific user
 jq 'select(.userId == "123")' logs.json
 
-# Find all ERROR logs
+# Find ERROR logs
 jq 'select(.level == "ERROR")' logs.json
 
-# Find slow operations (> 1 second)
+# Find slow operations
 jq 'select(.duration_ms > 1000)' logs.json
 
 # Find logs for specific request
 jq 'select(.requestId == "a1b2c3d4-...")' logs.json
 ```
 
-**Extract specific fields**:
+**Extract fields**:
 ```bash
 # Extract email and userId from registration logs
 jq 'select(.message | contains("registered")) | {userId, email}' logs.json
@@ -535,8 +463,8 @@ jq 'select(.message | contains("registered")) | {userId, email}' logs.json
 
 **Calculate statistics**:
 ```bash
-# Average duration for authentication
-jq -s 'map(select(.message | contains("authentication"))) | map(.duration_ms) | add / length' logs.json
+# Average duration
+jq -s 'map(.duration_ms) | add / length' logs.json
 
 # Count errors by type
 jq -s 'map(select(.level == "ERROR")) | group_by(.errorType) | map({errorType: .[0].errorType, count: length})' logs.json
@@ -545,36 +473,18 @@ jq -s 'map(select(.level == "ERROR")) | group_by(.errorType) | map({errorType: .
 ### Docker Logs with jq
 
 ```bash
-# Stream logs and filter in real-time
+# Stream and filter in real-time
 docker logs -f auth-service | jq 'select(.level == "ERROR")'
 
 # Follow logs for specific user
 docker logs -f auth-service | jq 'select(.userId == "123")'
 ```
 
-### Elasticsearch / Kibana
-
-Send logs to Elasticsearch for powerful querying and visualization:
-
-```json
-POST /logs-auth/_search
-{
-  "query": {
-    "bool": {
-      "must": [
-        {"term": {"userId": "123"}},
-        {"range": {"duration_ms": {"gte": 1000}}}
-      ]
-    }
-  }
-}
-```
-
 ---
 
 ## Common Patterns
 
-### Pattern 1: Request Lifecycle Logging
+### Pattern 1: Request Lifecycle
 
 ```java
 @Service
@@ -583,16 +493,10 @@ public class BlogPostService {
         long startTime = System.currentTimeMillis();
         log.info("Creating blog post", kv("step", "start"));
         
-        // Validation
-        log.debug("Validating input", kv("step", "validate"));
-        
-        // Save
         BlogPost saved = repository.save(blogPost);
         log.debug("Blog post saved", kv("blogPostId", saved.getId()), kv("step", "saved"));
         
-        // Publish event
         eventPublisher.publishEvent(new BlogPostCreatedEvent(this, saved, user));
-        log.debug("Event published", kv("step", "event_published"));
         
         long duration = System.currentTimeMillis() - startTime;
         log.info("Blog post created successfully", 
@@ -614,8 +518,6 @@ ResponseEntity<ProblemDetail> handleUserNotFound(
     log.warn("User not found", 
         kv("errorType", "UserNotFoundException"),
         kv("path", request.getRequestURI()),
-        kv("method", request.getMethod()),
-        kv("requestId", MDC.get("requestId")),
         kv("status", 404));
     
     return buildResponse(HttpStatus.NOT_FOUND, ex.getMessage(), request);
@@ -627,14 +529,11 @@ ResponseEntity<ProblemDetail> handleUserNotFound(
 ```java
 @PostMapping("/blog-posts")
 ResponseEntity<BlogPostResponse> createBlogPost(@Valid @RequestBody CreateBlogPostRequest request) {
-    log.info("POST /api/v1/blog-posts", 
-        kv("method", "POST"),
-        kv("path", "/api/v1/blog-posts"));
+    log.info("POST /api/v1/blog-posts");
     
     BlogPostResponse response = service.createBlogPost(request);
     
     log.info("Blog post created successfully", 
-        kv("path", "/api/v1/blog-posts"),
         kv("status", 201),
         kv("blogPostId", response.getId()));
     
@@ -642,20 +541,13 @@ ResponseEntity<BlogPostResponse> createBlogPost(@Valid @RequestBody CreateBlogPo
 }
 ```
 
-### Pattern 4: Trace Request Across Services
+### Pattern 4: Trace Request
 
-Use requestId to trace a request through the entire system:
+Use requestId to trace a request:
 
 ```bash
-# Get all logs for a specific request
+# Get all logs for specific request
 jq 'select(.requestId == "a1b2c3d4-e5f6-7890")' logs.json
-
-# Output shows complete request flow:
-# 1. Request received at controller
-# 2. Service method called
-# 3. Database query executed
-# 4. Event published
-# 5. Response returned
 ```
 
 ---
@@ -664,22 +556,12 @@ jq 'select(.requestId == "a1b2c3d4-e5f6-7890")' logs.json
 
 ### Key Takeaways
 
-1. **Enable JSON logging** in production with `SPRING_PROFILES_ACTIVE=json-logs`
-2. **Use `kv()` helper** for structured fields: `kv("userId", userId)`
-3. **MDC context** automatically includes `requestId` and `userId` in all logs
-4. **Log business events** at INFO level, technical details at DEBUG
-5. **Never log sensitive data** (passwords, tokens, PII)
-6. **Log once at boundaries** (GlobalExceptionHandler, not every layer)
-7. **Use jq or Elasticsearch** to analyze logs efficiently
+1. Enable JSON logging with `SPRING_PROFILES_ACTIVE=json-logs`
+2. Use `kv()` helper for structured fields
+3. MDC automatically includes requestId and userId
+4. Log business events at INFO, technical details at DEBUG
+5. Never log sensitive data
+6. Log once at boundaries
+7. Use jq for log analysis
 
-### Next Steps
-
-- Review examples in the codebase:
-  - `AuthenticationService`: User registration/login logging
-  - `BlogPostService`: CRUD operation logging
-  - `GlobalExceptionHandler`: Error logging with context
-- Experiment with jq queries on production logs
-- Set up log aggregation (Elasticsearch/Kibana or similar)
-- Create dashboards for key metrics (error rates, slow queries, user activity)
-
-For architecture details, see [ARCHITECTURE.md](ARCHITECTURE.md).
+See [ARCHITECTURE.md](ARCHITECTURE.md) for architecture details.
