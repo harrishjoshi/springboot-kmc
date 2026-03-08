@@ -15,12 +15,12 @@ This report analyzes the Spring Boot authentication service codebase for adheren
 
 | Principle | Score | Status |
 |-----------|-------|--------|
-| Single Responsibility (S) | 6/10 | ⚠️ Needs Improvement |
-| Open/Closed (O) | 7/10 | ✅ Good |
-| Liskov Substitution (L) | 8/10 | ✅ Good |
-| Interface Segregation (I) | 7/10 | ✅ Good |
-| Dependency Inversion (D) | 6/10 | ⚠️ Needs Improvement |
-| **Overall** | **6.8/10** | ⚠️ **Needs Improvement** |
+| Single Responsibility (S) | 6/10 |  Needs Improvement |
+| Open/Closed (O) | 7/10 |  Good |
+| Liskov Substitution (L) | 8/10 |  Good |
+| Interface Segregation (I) | 7/10 |  Good |
+| Dependency Inversion (D) | 6/10 |  Needs Improvement |
+| **Overall** | **6.8/10** |  **Needs Improvement** |
 
 ### Violations Summary
 
@@ -39,7 +39,7 @@ This report analyzes the Spring Boot authentication service codebase for adheren
 
 > "A class should have only one reason to change."
 
-### ⚠️ HIGH: User Model - Multiple Responsibilities
+###  HIGH: User Model - Multiple Responsibilities
 
 **File**: `src/main/java/com/harrish/auth/model/User.java:22-97`  
 **Severity**: HIGH  
@@ -56,7 +56,7 @@ The `User` class violates SRP by combining three distinct responsibilities:
 When Spring Security requirements change, authentication logic changes, or domain requirements change, this class needs to be modified.
 
 ```java
-// ❌ CURRENT: User does too much
+//  CURRENT: User does too much
 @Entity
 @Table(name = "users")
 public class User extends Auditable implements UserDetails {
@@ -86,7 +86,7 @@ public class User extends Auditable implements UserDetails {
 **Effort**: Medium (2-3 hours)
 
 ```java
-// ✅ REFACTORED: Separate concerns
+//  REFACTORED: Separate concerns
 
 // 1. User.java (pure domain entity)
 @Entity
@@ -189,11 +189,11 @@ public class CustomUserDetailsService implements UserDetailsService {
 
 #### Benefits
 
-- ✅ User entity focuses on domain logic
-- ✅ Security concerns isolated in UserPrincipal
-- ✅ Easier to test domain logic without Spring Security
-- ✅ Can add account status fields without affecting UserDetails contract
-- ✅ Clear separation of concerns
+-  User entity focuses on domain logic
+-  Security concerns isolated in UserPrincipal
+-  Easier to test domain logic without Spring Security
+-  Can add account status fields without affecting UserDetails contract
+-  Clear separation of concerns
 
 #### Migration Impact
 
@@ -207,7 +207,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 
 ---
 
-### ⚠️ HIGH: BlogPostService - Mixed Responsibilities
+###  HIGH: BlogPostService - Mixed Responsibilities
 
 **File**: `src/main/java/com/harrish/auth/service/BlogPostService.java:22-140`  
 **Severity**: HIGH  
@@ -225,7 +225,7 @@ The `BlogPostService` class has multiple reasons to change:
 Changes to DTO structure, authorization rules, or business logic all require modifying this class.
 
 ```java
-// ❌ CURRENT: Service does too much
+//  CURRENT: Service does too much
 @Service
 public class BlogPostService {
     public BlogPostResponse createBlogPost(CreateBlogPostRequest request) {
@@ -266,7 +266,7 @@ public class BlogPostService {
 **Effort**: High (4-5 hours)
 
 ```java
-// ✅ REFACTORED: Split responsibilities
+//  REFACTORED: Split responsibilities
 
 // 1. BlogPostService.java (pure business logic)
 @Service
@@ -483,11 +483,11 @@ public class BlogPostController {
 
 #### Benefits
 
-- ✅ BlogPostService focuses only on business logic
-- ✅ Mapping logic reusable across controllers
-- ✅ Authorization logic reusable and testable
-- ✅ Easy to mock CurrentUserProvider in tests
-- ✅ Can swap SecurityContext implementation without changing business logic
+-  BlogPostService focuses only on business logic
+-  Mapping logic reusable across controllers
+-  Authorization logic reusable and testable
+-  Easy to mock CurrentUserProvider in tests
+-  Can swap SecurityContext implementation without changing business logic
 
 #### Migration Impact
 
@@ -502,7 +502,7 @@ public class BlogPostController {
 
 ---
 
-### ⚠️ MEDIUM: AuthenticationService - Mixed Business and Infrastructure
+###  MEDIUM: AuthenticationService - Mixed Business and Infrastructure
 
 **File**: `src/main/java/com/harrish/auth/service/AuthenticationService.java:19-114`  
 **Severity**: MEDIUM  
@@ -523,7 +523,7 @@ Combines multiple responsibilities:
 **Effort**: Medium (3-4 hours)
 
 ```java
-// ✅ REFACTORED: Split into focused services
+//  REFACTORED: Split into focused services
 
 // 1. UserRegistrationService.java
 @Service
@@ -654,10 +654,10 @@ public class AuthenticationController {
 
 #### Benefits
 
-- ✅ Each service has one clear responsibility
-- ✅ Easier to test registration, authentication, and token operations separately
-- ✅ Can reuse registration logic (e.g., admin creating users)
-- ✅ Token operations centralized
+-  Each service has one clear responsibility
+-  Easier to test registration, authentication, and token operations separately
+-  Can reuse registration logic (e.g., admin creating users)
+-  Token operations centralized
 
 #### Migration Impact
 
@@ -668,7 +668,7 @@ public class AuthenticationController {
 
 ---
 
-### ⚠️ MEDIUM: JwtService - JWT and Validation Mixed
+###  MEDIUM: JwtService - JWT and Validation Mixed
 
 **File**: `src/main/java/com/harrish/auth/security/JwtService.java:19-103`  
 **Severity**: MEDIUM  
@@ -689,7 +689,7 @@ Combines token generation, parsing, and validation:
 **Reason for LOW Priority**: Current implementation is manageable; focus on higher-priority SRP violations first.
 
 ```java
-// ✅ REFACTORED: Split JWT concerns
+//  REFACTORED: Split JWT concerns
 
 // 1. JwtTokenGenerator.java
 @Component
@@ -812,10 +812,10 @@ public class JwtService {
 
 #### Benefits
 
-- ✅ Clear separation of token generation, parsing, and validation
-- ✅ Easier to test each concern independently
-- ✅ Can replace signing algorithm without affecting parsing
-- ✅ Facade pattern maintains backward compatibility
+-  Clear separation of token generation, parsing, and validation
+-  Easier to test each concern independently
+-  Can replace signing algorithm without affecting parsing
+-  Facade pattern maintains backward compatibility
 
 #### Migration Impact
 
@@ -826,7 +826,7 @@ public class JwtService {
 
 ---
 
-### ⚠️ MEDIUM: SecurityConfig - Multiple Configuration Concerns
+###  MEDIUM: SecurityConfig - Multiple Configuration Concerns
 
 **File**: `src/main/java/com/harrish/auth/security/SecurityConfig.java:24-100`  
 **Severity**: MEDIUM  
@@ -847,7 +847,7 @@ Handles multiple security configuration aspects:
 **Effort**: Low (1-2 hours)
 
 ```java
-// ✅ REFACTORED: Split configuration concerns
+//  REFACTORED: Split configuration concerns
 
 // 1. HttpSecurityConfig.java
 @Configuration
@@ -938,9 +938,9 @@ public class PasswordEncoderConfig {
 
 #### Benefits
 
-- ✅ Each configuration class has a focused responsibility
-- ✅ Easier to find and modify specific configuration
-- ✅ Can disable/enable features independently
+-  Each configuration class has a focused responsibility
+-  Easier to find and modify specific configuration
+-  Can disable/enable features independently
 
 #### Migration Impact
 
@@ -950,7 +950,7 @@ public class PasswordEncoderConfig {
 
 ---
 
-### ⚠️ LOW: GlobalExceptionHandler - Multiple Exception Types
+###  LOW: GlobalExceptionHandler - Multiple Exception Types
 
 **File**: `src/main/java/com/harrish/auth/exception/GlobalExceptionHandler.java:23-159`  
 **Severity**: LOW  
@@ -967,7 +967,7 @@ While centralized exception handling is a pattern, this class handles 7 differen
 **Note**: This is acceptable for now; consider refactoring only if exception types grow beyond 10-12.
 
 ```java
-// ✅ REFACTORED: Strategy pattern for exception mapping
+//  REFACTORED: Strategy pattern for exception mapping
 
 // 1. ExceptionMapper interface
 public interface ExceptionMapper<T extends Exception> {
@@ -1079,9 +1079,9 @@ public class GlobalExceptionHandler {
 
 #### Benefits
 
-- ✅ Open for extension - add new exception types without modifying handler
-- ✅ Each mapper focuses on one exception type
-- ✅ Easier to test exception mapping logic
+-  Open for extension - add new exception types without modifying handler
+-  Each mapper focuses on one exception type
+-  Easier to test exception mapping logic
 
 #### Migration Impact
 
@@ -1096,7 +1096,7 @@ public class GlobalExceptionHandler {
 
 > "Software entities should be open for extension, but closed for modification."
 
-### ⚠️ HIGH: GlobalExceptionHandler - Type-Based Exception Handling
+###  HIGH: GlobalExceptionHandler - Type-Based Exception Handling
 
 **File**: `src/main/java/com/harrish/auth/exception/GlobalExceptionHandler.java:32-158`  
 **Severity**: HIGH  
@@ -1126,7 +1126,7 @@ See SRP VIOLATION 1.6 for detailed refactoring with strategy pattern.
 
 ---
 
-### ⚠️ MEDIUM: SecurityConfig - Hardcoded Endpoint Patterns
+###  MEDIUM: SecurityConfig - Hardcoded Endpoint Patterns
 
 **File**: `src/main/java/com/harrish/auth/security/SecurityConfig.java:44-53`  
 **Severity**: MEDIUM  
@@ -1148,7 +1148,7 @@ Security rules are hardcoded. Adding new public/protected endpoints requires mod
 **Effort**: Medium (2-3 hours)
 
 ```java
-// ✅ REFACTORED: Configurable security rules
+//  REFACTORED: Configurable security rules
 
 // 1. application.yml
 security:
@@ -1256,10 +1256,10 @@ public class SecurityConfig {
 
 #### Benefits
 
-- ✅ Add new endpoints without modifying code
-- ✅ Different rules per environment (dev, prod)
-- ✅ Centralized security rule management
-- ✅ Easier to audit security configuration
+-  Add new endpoints without modifying code
+-  Different rules per environment (dev, prod)
+-  Centralized security rule management
+-  Easier to audit security configuration
 
 #### Migration Impact
 
@@ -1270,7 +1270,7 @@ public class SecurityConfig {
 
 ---
 
-### ⚠️ MEDIUM: Role-Based Authorization - Hardcoded String
+###  MEDIUM: Role-Based Authorization - Hardcoded String
 
 **File**: `src/main/java/com/harrish/auth/model/User.java:45`  
 **Severity**: MEDIUM  
@@ -1292,7 +1292,7 @@ Adding new authority types or changing the authority structure requires modifyin
 **Effort**: Medium (2-3 hours)
 
 ```java
-// ✅ REFACTORED: Authority provider strategy
+//  REFACTORED: Authority provider strategy
 
 // 1. AuthorityProvider interface
 public interface AuthorityProvider {
@@ -1351,9 +1351,9 @@ public class UserPrincipal implements UserDetails {
 
 #### Benefits
 
-- ✅ Can switch authority strategies without modifying User
-- ✅ Support for hierarchical roles
-- ✅ Support for permission-based access control
+-  Can switch authority strategies without modifying User
+-  Support for hierarchical roles
+-  Support for permission-based access control
 
 #### Migration Impact
 
@@ -1364,7 +1364,7 @@ public class UserPrincipal implements UserDetails {
 
 ---
 
-### ⚠️ LOW: Role Enum - Closed for Extension
+###  LOW: Role Enum - Closed for Extension
 
 **File**: `src/main/java/com/harrish/auth/model/Role.java:3-6`  
 **Severity**: LOW  
@@ -1390,7 +1390,7 @@ Adding new roles requires modifying the source code and recompilation. If the sy
 **Note**: Enum approach is acceptable for fixed, compile-time roles. Only refactor if business requires runtime role management.
 
 ```java
-// ✅ REFACTORED: Entity-based roles (only if needed)
+//  REFACTORED: Entity-based roles (only if needed)
 
 // 1. Role entity
 @Entity
@@ -1494,9 +1494,9 @@ public class RoleDataInitializer implements ApplicationRunner {
 
 #### Benefits
 
-- ✅ Add new roles at runtime without code changes
-- ✅ Fine-grained permission control
-- ✅ Role management UI possible
+-  Add new roles at runtime without code changes
+-  Fine-grained permission control
+-  Role management UI possible
 
 #### Migration Impact
 
@@ -1512,7 +1512,7 @@ public class RoleDataInitializer implements ApplicationRunner {
 
 > "Subtypes must be substitutable for their base types."
 
-### ⚠️ MEDIUM: User Implementing UserDetails - Contract Violation Risk
+###  MEDIUM: User Implementing UserDetails - Contract Violation Risk
 
 **File**: `src/main/java/com/harrish/auth/model/User.java:54-72`  
 **Severity**: MEDIUM  
@@ -1544,7 +1544,7 @@ See SRP VIOLATION 1.1 for detailed refactoring using composition (UserPrincipal 
 
 ---
 
-### ⚠️ LOW: BlogPost Extending Auditable - Inheritance Misuse
+###  LOW: BlogPost Extending Auditable - Inheritance Misuse
 
 **File**: `src/main/java/com/harrish/auth/model/BlogPost.java:17`  
 **Severity**: LOW  
@@ -1566,7 +1566,7 @@ This can lead to LSP issues:
 **Effort**: Medium (2-3 hours)
 
 ```java
-// ✅ REFACTORED: Use composition with embedded type
+//  REFACTORED: Use composition with embedded type
 
 // 1. AuditMetadata.java
 @Embeddable
@@ -1673,10 +1673,10 @@ public class User {
 
 #### Benefits
 
-- ✅ Composition over inheritance (best practice)
-- ✅ Audit metadata encapsulated and immutable
-- ✅ Can add auditing to any entity without inheritance
-- ✅ Clear "has-a" relationship
+-  Composition over inheritance (best practice)
+-  Audit metadata encapsulated and immutable
+-  Can add auditing to any entity without inheritance
+-  Clear "has-a" relationship
 
 #### Migration Impact
 
@@ -1691,7 +1691,7 @@ public class User {
 
 > "Clients should not be forced to depend on interfaces they do not use."
 
-### ⚠️ MEDIUM: UserDetails Interface Forcing Unnecessary Methods
+###  MEDIUM: UserDetails Interface Forcing Unnecessary Methods
 
 **File**: `src/main/java/com/harrish/auth/model/User.java:43-72`  
 **Severity**: MEDIUM  
@@ -1701,8 +1701,8 @@ public class User {
 
 The `UserDetails` interface from Spring Security forces the `User` entity to implement 7 methods, but only 2 are actually meaningful in this context:
 
-- ✅ `getAuthorities()` - needed for authorization
-- ✅ `getPassword()` - needed for authentication
+-  `getAuthorities()` - needed for authorization
+-  `getPassword()` - needed for authentication
 
 The other 5 methods are dummy implementations that return hardcoded values:
 
@@ -1723,7 +1723,7 @@ See SRP VIOLATION 1.1 for detailed refactoring using UserPrincipal adapter.
 
 ---
 
-### ⚠️ LOW: JpaRepository Interface - Unused Methods
+###  LOW: JpaRepository Interface - Unused Methods
 
 **File**: 
 - `src/main/java/com/harrish/auth/repository/UserRepository.java:8`
@@ -1757,7 +1757,7 @@ Exposes unused methods like:
 **Note**: Only refactor if strict API control is needed
 
 ```java
-// ✅ REFACTORED: Custom base repository with only needed methods
+//  REFACTORED: Custom base repository with only needed methods
 
 // 1. ReadOnlyRepository.java
 @NoRepositoryBean
@@ -1791,9 +1791,9 @@ public interface BlogPostRepository extends CrudRepository<BlogPost, Long> {
 
 #### Benefits
 
-- ✅ Minimal API surface - only expose needed methods
-- ✅ Prevents accidental use of dangerous methods (deleteAll)
-- ✅ Clear intent of read-only vs read-write repositories
+-  Minimal API surface - only expose needed methods
+-  Prevents accidental use of dangerous methods (deleteAll)
+-  Clear intent of read-only vs read-write repositories
 
 #### Migration Impact
 
@@ -1807,7 +1807,7 @@ public interface BlogPostRepository extends CrudRepository<BlogPost, Long> {
 
 > "High-level modules should not depend on low-level modules. Both should depend on abstractions."
 
-### ⚠️ MEDIUM: BlogPostService Direct Dependency on SecurityContext
+###  MEDIUM: BlogPostService Direct Dependency on SecurityContext
 
 **File**: `src/main/java/com/harrish/auth/service/BlogPostService.java:119-125`  
 **Severity**: MEDIUM  
@@ -1836,7 +1836,7 @@ See SRP VIOLATION 1.2 for detailed refactoring with `CurrentUserProvider` abstra
 
 ---
 
-### ⚠️ MEDIUM: JpaAuditingConfig Direct SecurityContext Access
+###  MEDIUM: JpaAuditingConfig Direct SecurityContext Access
 
 **File**: `src/main/java/com/harrish/auth/config/JpaAuditingConfig.java:17-32`  
 **Severity**: MEDIUM  
@@ -1862,7 +1862,7 @@ public AuditorAware<User> auditorProvider() {
 **Effort**: Low (30 minutes)
 
 ```java
-// ✅ REFACTORED: Use CurrentUserProvider abstraction
+//  REFACTORED: Use CurrentUserProvider abstraction
 
 @Configuration
 @EnableJpaAuditing(auditorAwareRef = "auditorProvider")
@@ -1885,9 +1885,9 @@ public class JpaAuditingConfig {
 
 #### Benefits
 
-- ✅ No direct dependency on SecurityContextHolder
-- ✅ Easy to test with mock CurrentUserProvider
-- ✅ Can swap security implementation
+-  No direct dependency on SecurityContextHolder
+-  Easy to test with mock CurrentUserProvider
+-  Can swap security implementation
 
 #### Migration Impact
 
@@ -1898,7 +1898,7 @@ public class JpaAuditingConfig {
 
 ---
 
-### ⚠️ MEDIUM: TestController Direct SecurityContext Access
+###  MEDIUM: TestController Direct SecurityContext Access
 
 **File**: `src/main/java/com/harrish/auth/controller/TestController.java:51`  
 **Severity**: LOW  
@@ -1918,7 +1918,7 @@ Authentication authentication = SecurityContextHolder.getContext().getAuthentica
 **Effort**: Very Low (10 minutes)
 
 ```java
-// ✅ REFACTORED: Use method parameter injection
+//  REFACTORED: Use method parameter injection
 
 @GetMapping("/protected")
 public ResponseEntity<UserInfoResponse> protectedEndpoint(
@@ -1938,9 +1938,9 @@ public ResponseEntity<UserInfoResponse> protectedEndpoint(
 
 #### Benefits
 
-- ✅ No direct SecurityContext access
-- ✅ Easier to test (mock UserPrincipal)
-- ✅ Clearer intent
+-  No direct SecurityContext access
+-  Easier to test (mock UserPrincipal)
+-  Clearer intent
 
 #### Migration Impact
 
@@ -1950,7 +1950,7 @@ public ResponseEntity<UserInfoResponse> protectedEndpoint(
 
 ---
 
-### ⚠️ LOW: Direct Dependency on BCryptPasswordEncoder
+###  LOW: Direct Dependency on BCryptPasswordEncoder
 
 **File**: `src/main/java/com/harrish/auth/security/SecurityConfig.java:91-94`  
 **Severity**: LOW  
@@ -1976,7 +1976,7 @@ While this returns the `PasswordEncoder` interface, switching to a different enc
 **Note**: Only needed if encoder flexibility is required
 
 ```java
-// ✅ REFACTORED: Configurable encoder selection
+//  REFACTORED: Configurable encoder selection
 
 // 1. application.yml
 security:
@@ -2022,9 +2022,9 @@ public class PasswordEncoderConfig {
 
 #### Benefits
 
-- ✅ Switch encoders via configuration
-- ✅ No code changes for encoder selection
-- ✅ Different encoders per environment
+-  Switch encoders via configuration
+-  No code changes for encoder selection
+-  Different encoders per environment
 
 #### Migration Impact
 
@@ -2035,7 +2035,7 @@ public class PasswordEncoderConfig {
 
 ---
 
-### ⚠️ LOW: Direct Instantiation of Response DTOs
+###  LOW: Direct Instantiation of Response DTOs
 
 **File**: Multiple files
 - `src/main/java/com/harrish/auth/service/AuthenticationService.java:57,82,109`
@@ -2069,7 +2069,7 @@ See SRP VIOLATION 1.2 for detailed refactoring with mapper components.
 
 The codebase demonstrates several good practices:
 
-### ✅ Dependency Injection
+###  Dependency Injection
 
 All services, controllers, and configurations use constructor-based dependency injection:
 
@@ -2082,7 +2082,7 @@ public class BlogPostService {
 }
 ```
 
-### ✅ Interface-Based Repositories
+###  Interface-Based Repositories
 
 Repositories extend Spring Data JPA interfaces:
 
@@ -2092,7 +2092,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 }
 ```
 
-### ✅ Centralized Exception Handling
+###  Centralized Exception Handling
 
 Global exception handler provides consistent error responses:
 
@@ -2106,7 +2106,7 @@ public class GlobalExceptionHandler {
 }
 ```
 
-### ✅ Configuration Externalization
+###  Configuration Externalization
 
 JWT properties externalized to configuration:
 
@@ -2119,7 +2119,7 @@ public class JwtProperties {
 }
 ```
 
-### ✅ Transaction Management
+###  Transaction Management
 
 Appropriate use of `@Transactional`:
 
@@ -2233,10 +2233,10 @@ public BlogPost getBlogPost(Long id) {
 
 ### Before Refactoring
 
-1. ✅ **Ensure all existing tests pass**
-2. ✅ **Create comprehensive tests** for areas being refactored
-3. ✅ **Commit current working state** to version control
-4. ✅ **Create feature branch** for refactoring
+1.  **Ensure all existing tests pass**
+2.  **Create comprehensive tests** for areas being refactored
+3.  **Commit current working state** to version control
+4.  **Create feature branch** for refactoring
 
 ### During Refactoring
 
@@ -2247,10 +2247,10 @@ public BlogPost getBlogPost(Long id) {
 
 ### After Refactoring
 
-1. ✅ **Verify all tests pass**
-2. ✅ **Test manually** - Ensure functionality works end-to-end
-3. ✅ **Review code changes** - Self-review before PR
-4. ✅ **Update architecture documentation** - Reflect new structure
+1.  **Verify all tests pass**
+2.  **Test manually** - Ensure functionality works end-to-end
+3.  **Review code changes** - Self-review before PR
+4.  **Update architecture documentation** - Reflect new structure
 
 ### Testing Strategy
 
@@ -2277,7 +2277,7 @@ For each refactoring:
 
 ### Current State
 
-- **Overall SOLID Score**: 6.8/10 ⚠️ Needs Improvement
+- **Overall SOLID Score**: 6.8/10  Needs Improvement
 - **Total Violations**: 19 (4 High, 10 Medium, 5 Low)
 - **Critical Issues**: User/UserDetails mixing, BlogPostService doing too much, direct SecurityContext access
 
@@ -2302,7 +2302,7 @@ For each refactoring:
 
 After implementing Phase 1 refactorings:
 
-- **SOLID Score**: ~8.0/10 ✅ Good
+- **SOLID Score**: ~8.0/10  Good
 - **Maintainability**: Significantly improved
 - **Testability**: Each component easily testable in isolation
 - **Flexibility**: Can swap implementations without changing business logic

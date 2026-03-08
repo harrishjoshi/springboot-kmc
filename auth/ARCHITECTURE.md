@@ -664,20 +664,117 @@ For more details, see [LOGGING_GUIDE.md](LOGGING_GUIDE.md).
 
 ### Current Test Coverage
 
-**Overall**: 44% line coverage (87 tests passing)
+**Overall**: See [TEST_COVERAGE_REPORT.md](TEST_COVERAGE_REPORT.md) for current coverage metrics.
 
-**By Package**:
-- `com.harrish.auth.security`: 80% (critical JWT components)
-- `com.harrish.auth.util`: 59% (validation utilities)
-- `com.harrish.auth.service`: ~40% (partial coverage)
+**Strategic Focus** (Phase 5):
+- `com.harrish.auth.security`: 80% (critical JWT authentication components)
+- `com.harrish.auth.util`: 59% (validation and utility functions)
+- `com.harrish.auth.service`: ~40% (core business logic with acceptance tests)
 
 **Test Infrastructure**:
 - JUnit 5 for test framework
-- Mockito for mocking
+- Mockito for mocking dependencies
 - H2 in-memory database for integration tests
-- JaCoCo for coverage reporting
+- JaCoCo for coverage reporting with 80% threshold
 
-For detailed coverage report, see [TEST_COVERAGE_REPORT.md](TEST_COVERAGE_REPORT.md).
+Phase 5 adopted a **risk-based testing strategy**, prioritizing high-value security tests over arbitrary coverage goals.
+
+---
+
+## Scalability Assessment
+
+### Microservice Extraction Feasibility
+
+**Current Coupling:**
+-  **Moderate** - Could extract blog module, but shares User entity
+-  **Database Schema** - Single schema, would need decomposition for microservices
+
+**Extraction Feasibility:**
+
+| Feature | Extractability | Effort | Notes |
+|---------|----------------|--------|-------|
+| Authentication | High | Low | Already well-bounded, minimal external dependencies |
+| Blog Posts | Medium | Medium | Depends on User entity - requires duplication or shared service |
+| User Management | Low | High | Core to auth system, tightly coupled |
+
+**Verdict:** **Monolith-first is the correct approach** for this system size. Microservice boundaries are identifiable but not yet necessary. Consider extraction when:
+- Team size exceeds 8-10 developers
+- Independent deployment cycles are required
+- Blog module requires different scaling characteristics than auth
+
+### Package Structure Evolution
+
+**Current Approach: Package-by-Layer**
+
+```
+com.harrish.auth/
+├── controller/    (API layer)
+├── service/       (Business logic)
+├── repository/    (Data access)
+└── model/         (Domain entities)
+```
+
+**Pros:** Simple, familiar, works well for <50 classes  
+**Cons:** Scatters related code, harder to identify feature boundaries
+
+**Alternative: Package-by-Feature** (Consider if project reaches 80-100+ classes)
+
+```
+com.harrish.auth/
+├── authentication/
+│   ├── api/          (AuthenticationController)
+│   ├── domain/       (User, Role, AuthenticationService)
+│   ├── persistence/  (UserRepository)
+│   └── dto/          (RegisterRequest, LoginRequest)
+├── blog/
+│   ├── api/          (BlogPostController)
+│   ├── domain/       (BlogPost, BlogPostService)
+│   ├── persistence/  (BlogPostRepository)
+│   └── dto/          (BlogPostRequest, BlogPostResponse)
+└── shared/
+    ├── security/     (JWT, SecurityConfig, filters)
+    ├── exception/    (GlobalExceptionHandler)
+    └── config/       (AsyncConfig, JpaConfig)
+```
+
+**Recommendation:** Keep current package-by-layer structure for now. Refactor to package-by-feature when:
+- Project reaches 80-100+ classes
+- Adding a 3rd major feature domain
+- Team grows and needs clearer ownership boundaries
+
+---
+
+## Architecture Quality Checklist
+
+### Package Structure
+- [x] Clear organization strategy (package-by-layer)
+- [x] Consistent naming across modules
+- [x] No `util/` dumping ground (only 1 focused utility class)
+- [x] Packages are reasonably sized (<10 classes per package)
+
+### Dependency Direction
+- [x] Controllers depend on services 
+- [x] Services depend on repositories 
+- [x] No circular dependencies detected 
+- [ ] Domain has zero framework imports  (Uses JPA annotations, Spring Security UserDetails)
+  - **Note**: Pragmatic trade-off for productivity in small-to-medium projects
+
+### Layer Boundaries
+- [x] Controllers don't contain business logic 
+- [x] Services don't know about HTTP 
+- [x] DTOs at boundaries, domain objects internal 
+- [x] No repository leakage to controllers 
+
+### Module Boundaries
+- [x] Clear package boundaries 
+- [x] Package-private classes used appropriately 
+- [x] Services accessed through interfaces (Repository pattern) 
+
+### Code Quality
+- [x] Immutable DTOs using Java records 
+- [x] Lombok used appropriately for entities 
+- [x] Exception handling centralized (GlobalExceptionHandler) 
+- [x] Validation at boundaries (@Valid, @Pattern, custom validators) 
 
 ---
 

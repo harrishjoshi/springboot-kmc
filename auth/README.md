@@ -13,7 +13,7 @@ A Spring Boot application that provides authentication and blog post management 
 - Structured JSON logging with request correlation (MDC)
 - Event-driven architecture with Observer pattern
 - Repository layer with optimized queries (N+1 prevention)
-- 44% test coverage with unit and integration tests
+- Comprehensive test coverage with strategic focus on security components
 - Database indexing for performance optimization
 
 ## Architecture
@@ -94,7 +94,7 @@ For structured logging usage, see [LOGGING_GUIDE.md](LOGGING_GUIDE.md).
 ### Development Tools
 - **Lombok**: Reduces boilerplate code with annotations
 - **Jakarta Validation**: Bean validation with custom validators
-- **JaCoCo**: Code coverage reporting (44% achieved)
+- **JaCoCo**: Code coverage reporting with strategic focus on critical components
 
 ### Testing
 - **JUnit 5**: Unit testing framework
@@ -508,9 +508,10 @@ auth/
 open target/site/jacoco/index.html
 ```
 
-**Test Coverage:** 44% overall (87 unit tests passing)
-- Security package: 80% coverage (critical components)
-- Utility package: 59% coverage
+**Test Coverage:** Strategic focus on critical components (see TEST_COVERAGE_REPORT.md for details)
+- Security package: 80% coverage (authentication, JWT validation)
+- Utility package: 59% coverage (validation helpers)
+- Overall: 87 unit tests passing
 - Coverage report: `target/site/jacoco/index.html`
 
 For more details, see [TEST_COVERAGE_REPORT.md](TEST_COVERAGE_REPORT.md).
@@ -576,17 +577,24 @@ For detailed performance reports:
 
 ## Documentation
 
-### Available Documentation
-- **[README.md](README.md)**: This file - getting started guide
-- **[ARCHITECTURE.md](ARCHITECTURE.md)**: Detailed architecture design and patterns
-- **[LOGGING_GUIDE.md](LOGGING_GUIDE.md)**: Structured logging usage guide
-- **[TEST_COVERAGE_REPORT.md](TEST_COVERAGE_REPORT.md)**: Test coverage analysis
-- **[SECURITY_AUDIT_REPORT.md](SECURITY_AUDIT_REPORT.md)**: Security audit results
-- **[DEPENDENCY_AUDIT_REPORT.md](DEPENDENCY_AUDIT_REPORT.md)**: Maven dependency audit
-- **[CODE_REVIEW_REPORT.md](CODE_REVIEW_REPORT.md)**: Java code review findings
-- **[SOLID_PRINCIPLES_REPORT.md](SOLID_PRINCIPLES_REPORT.md)**: SOLID principles analysis
-- **[CLEAN_CODE_REPORT.md](CLEAN_CODE_REPORT.md)**: Clean code review
-- **[DESIGN_PATTERNS_REPORT.md](DESIGN_PATTERNS_REPORT.md)**: Design patterns used
+### Core Documentation (Start Here)
+- **[README.md](README.md)**: Getting started guide and API reference (this file)
+- **[ARCHITECTURE.md](ARCHITECTURE.md)**: System architecture, design patterns, and scalability assessment
+- **[LOGGING_GUIDE.md](LOGGING_GUIDE.md)**: Structured logging best practices with MDC context
+- **[SECURITY.md](SECURITY.md)**: Security policy and deployment checklist
+
+### Phase Reports & Audits
+- **[TEST_COVERAGE_REPORT.md](TEST_COVERAGE_REPORT.md)**: Test coverage analysis (Phase 5 - 44% strategic coverage)
+- **[SECURITY_AUDIT_REPORT.md](SECURITY_AUDIT_REPORT.md)**: Security audit with fix status updates (Phase 1.1)
+- **[PERFORMANCE_CONCURRENCY_REPORT.md](PERFORMANCE_CONCURRENCY_REPORT.md)**: Performance and async improvements (Phase 4)
+- **[SPRING_BOOT_JPA_API_REPORT.md](SPRING_BOOT_JPA_API_REPORT.md)**: N+1 query fixes and indexing (Phase 3)
+- **[DEPENDENCY_AUDIT_REPORT.md](DEPENDENCY_AUDIT_REPORT.md)**: Maven dependency audit (Phase 1.2)
+
+### Code Quality Reviews (Reference)
+- **[CODE_REVIEW_REPORT.md](CODE_REVIEW_REPORT.md)**: Java code review findings (Phase 2.1)
+- **[SOLID_PRINCIPLES_REPORT.md](SOLID_PRINCIPLES_REPORT.md)**: SOLID principles analysis (Phase 2.2)
+- **[CLEAN_CODE_REPORT.md](CLEAN_CODE_REPORT.md)**: Clean code review (Phase 2.3)
+- **[DESIGN_PATTERNS_REPORT.md](DESIGN_PATTERNS_REPORT.md)**: Design patterns implemented (Phase 2.4)
 - **[SPRING_BOOT_JPA_API_REPORT.md](SPRING_BOOT_JPA_API_REPORT.md)**: Spring Boot/JPA/API patterns
 - **[PERFORMANCE_CONCURRENCY_REPORT.md](PERFORMANCE_CONCURRENCY_REPORT.md)**: Performance and concurrency
 

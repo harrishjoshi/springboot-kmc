@@ -82,8 +82,8 @@ public class AuthenticationService {
                 kv("step", "complete"),
                 kv("duration_ms", totalTime - startTime));
 
-        // Return response with success message
-        return new RegisterResponse("User registered successfully");
+        // Return response with user ID and success message (REST best practice for 201 Created)
+        return new RegisterResponse(user.getId(), "User registered successfully");
     }
 
     @Transactional(readOnly = true)
