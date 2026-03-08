@@ -9,16 +9,22 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import static net.logstash.logback.argument.StructuredArguments.kv;
+
 @RestController
 @RequestMapping("/api/v1/auth")
 @Tag(name = "Authentication", description = "Authentication API for user registration, login, and token refresh")
 class AuthenticationController {
+
+    private static final Logger log = LoggerFactory.getLogger(AuthenticationController.class);
 
     private final AuthenticationService authenticationService;
 
@@ -40,7 +46,18 @@ class AuthenticationController {
     ResponseEntity<RegisterResponse> register(
             @Valid @RequestBody RegisterRequest request
     ) {
-        return ResponseEntity.ok(authenticationService.register(request));
+        log.info("POST /api/v1/auth/register", 
+                kv("method", "POST"),
+                kv("path", "/api/v1/auth/register"),
+                kv("email", request.email()));
+        
+        RegisterResponse response = authenticationService.register(request);
+        
+        log.info("Registration successful", 
+                kv("path", "/api/v1/auth/register"),
+                kv("status", 200));
+        
+        return ResponseEntity.ok(response);
     }
 
     @Operation(
@@ -57,7 +74,18 @@ class AuthenticationController {
     ResponseEntity<AuthenticationResponse> authenticate(
             @Valid @RequestBody AuthenticationRequest request
     ) {
-        return ResponseEntity.ok(authenticationService.authenticate(request));
+        log.info("POST /api/v1/auth/login", 
+                kv("method", "POST"),
+                kv("path", "/api/v1/auth/login"),
+                kv("email", request.email()));
+        
+        AuthenticationResponse response = authenticationService.authenticate(request);
+        
+        log.info("Authentication successful", 
+                kv("path", "/api/v1/auth/login"),
+                kv("status", 200));
+        
+        return ResponseEntity.ok(response);
     }
 
     @Operation(
@@ -74,6 +102,16 @@ class AuthenticationController {
     ResponseEntity<AuthenticationResponse> refreshToken(
             @Valid @RequestBody TokenRefreshRequest request
     ) {
-        return ResponseEntity.ok(authenticationService.refreshToken(request));
+        log.info("POST /api/v1/auth/refresh-token", 
+                kv("method", "POST"),
+                kv("path", "/api/v1/auth/refresh-token"));
+        
+        AuthenticationResponse response = authenticationService.refreshToken(request);
+        
+        log.info("Token refresh successful", 
+                kv("path", "/api/v1/auth/refresh-token"),
+                kv("status", 200));
+        
+        return ResponseEntity.ok(response);
     }
 }
