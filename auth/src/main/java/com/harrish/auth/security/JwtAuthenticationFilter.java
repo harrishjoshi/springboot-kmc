@@ -1,5 +1,6 @@
 package com.harrish.auth.security;
 
+import com.harrish.auth.util.SecurityConstants;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -35,29 +36,24 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
-        final var authHeader = request.getHeader("Authorization");
+        final var authorizationHeader = request.getHeader("Authorization");
         final String jwt;
         final String userEmail;
 
-        // Skip if Authorization header is missing or not a Bearer token
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+        // Early return for unauthenticated requests
+        if (authorizationHeader == null || !authorizationHeader.startsWith(SecurityConstants.BEARER_PREFIX)) {
             filterChain.doFilter(request, response);
             return;
         }
 
         try {
-            // Extract JWT token from Authorization header
-            jwt = authHeader.substring(7);
+            jwt = authorizationHeader.substring(SecurityConstants.BEARER_PREFIX_LENGTH);
             userEmail = jwtService.extractUsername(jwt);
 
-            // If we have a username and no authentication exists yet
             if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                // Load user details from database
                 var userDetails = this.userDetailsService.loadUserByUsername(userEmail);
 
-                // Validate token
                 if (jwtService.hasValidExpiration(jwt, userDetails)) {
-                    // Create authentication token
                     var authToken = new UsernamePasswordAuthenticationToken(
                             userDetails,
                             null,
