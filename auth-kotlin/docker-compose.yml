@@ -1,0 +1,34 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: auth-postgres
+    environment:
+      POSTGRES_DB: auth
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  app:
+    image: auth-kotlin
+    container_name: auth-kotlin
+    ports:
+      - "8080:8080"
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/auth
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+      JWT_SECRET: MySuperSecretKeyForJWTTokenGenerationAndValidation12345678901234567890
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
