@@ -45,7 +45,7 @@ All responses include security headers:
 
 ---
 
-## 🚀 Deployment Security Checklist
+##  Deployment Security Checklist
 
 ### Pre-Production
 - [ ] **Generate strong JWT secret** (256-bit minimum)
@@ -197,16 +197,16 @@ open target/dependency-check-report.html
 
 | Risk | Status | Implementation |
 |------|--------|----------------|
-| A01: Broken Access Control | ✅ COMPLIANT | Spring Security + @PreAuthorize annotations |
-| A02: Cryptographic Failures | ✅ COMPLIANT | BCrypt passwords, JWT signatures, HTTPS recommended |
-| A03: Injection | ✅ COMPLIANT | Parameterized queries via Spring Data JPA |
-| A04: Insecure Design | ✅ COMPLIANT | Secure-by-default configuration |
-| A05: Security Misconfiguration | ✅ COMPLIANT | Security headers, debug disabled in prod |
-| A06: Vulnerable Components | ⚠️ MONITOR | Run dependency checks regularly |
-| A07: Authentication Failures | ⚠️ PARTIAL | Strong password policy, consider rate limiting |
-| A08: Data Integrity Failures | ✅ COMPLIANT | JWT signature verification |
-| A09: Logging Failures | ⚠️ PARTIAL | Security events logged, enhance monitoring |
-| A10: SSRF | ✅ N/A | No external URL fetching |
+| A01: Broken Access Control |  COMPLIANT | Spring Security + @PreAuthorize annotations |
+| A02: Cryptographic Failures |  COMPLIANT | BCrypt passwords, JWT signatures, HTTPS recommended |
+| A03: Injection |  COMPLIANT | Parameterized queries via Spring Data JPA |
+| A04: Insecure Design |  COMPLIANT | Secure-by-default configuration |
+| A05: Security Misconfiguration |  COMPLIANT | Security headers, debug disabled in prod |
+| A06: Vulnerable Components |  MONITOR | Run dependency checks regularly |
+| A07: Authentication Failures |  PARTIAL | Strong password policy, consider rate limiting |
+| A08: Data Integrity Failures |  COMPLIANT | JWT signature verification |
+| A09: Logging Failures |  PARTIAL | Security events logged, enhance monitoring |
+| A10: SSRF |  N/A | No external URL fetching |
 
 ---
 
@@ -237,7 +237,7 @@ For security issues, please contact:
 
 ---
 
-## 📚 References
+##  References
 
 - [OWASP Top 10](https://owasp.org/www-project-top-ten/)
 - [Spring Security Documentation](https://spring.io/projects/spring-security)

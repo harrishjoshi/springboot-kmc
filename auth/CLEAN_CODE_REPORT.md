@@ -20,11 +20,11 @@ This report documents **47 Clean Code violations** identified across the Spring 
 
 ### Overall Assessment
 The codebase demonstrates **good architectural practices** with:
-- ✅ Clear separation of concerns (controller/service/repository layers)
-- ✅ Proper Spring Security integration
-- ✅ Structured exception handling
-- ✅ Domain-driven design patterns (entities with business methods)
-- ✅ Modern Java practices (records, pattern matching, sealed interfaces)
+-  Clear separation of concerns (controller/service/repository layers)
+-  Proper Spring Security integration
+-  Structured exception handling
+-  Domain-driven design patterns (entities with business methods)
+-  Modern Java practices (records, pattern matching, sealed interfaces)
 
 **Primary areas requiring improvement:**
 - 🔴 Code duplication in exception handling and validation
@@ -1468,11 +1468,11 @@ log.debug("JWT authentication successful for user ID: {}", userId);
 The Spring Boot authentication service demonstrates **solid architectural foundations** with room for improvement in code maintainability. The violations identified are primarily **quality-of-life issues** rather than critical defects.
 
 ### Strengths
-✅ Clear layered architecture  
-✅ Proper separation of concerns  
-✅ Domain-driven design patterns emerging  
-✅ Modern Java features utilized  
-✅ Comprehensive exception handling structure  
+ Clear layered architecture  
+ Proper separation of concerns  
+ Domain-driven design patterns emerging  
+ Modern Java features utilized  
+ Comprehensive exception handling structure  
 
 ### Key Improvements Needed
 🔴 Reduce code duplication (especially exception handling)  

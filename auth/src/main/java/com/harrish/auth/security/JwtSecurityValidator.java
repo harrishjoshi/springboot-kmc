@@ -36,8 +36,8 @@ public class JwtSecurityValidator {
 
         // Check if default secret is being used
         if (DEFAULT_SECRET.equals(secretKey)) {
-            log.warn("⚠️  WARNING: Using default JWT secret key! This is INSECURE for production.");
-            log.warn("⚠️  Set JWT_SECRET_KEY environment variable with a strong secret.");
+            log.warn("WARNING: Using default JWT secret key! This is INSECURE for production.");
+            log.warn("Set JWT_SECRET_KEY environment variable with a strong secret.");
 
             // In production, fail fast
             String profile = System.getProperty("spring.profiles.active", "");
@@ -58,7 +58,7 @@ public class JwtSecurityValidator {
                                 MINIMUM_SECRET_LENGTH_BYTES, decodedKey.length)
                 );
             }
-            log.info("✓ JWT secret key validation passed ({} bytes)", decodedKey.length);
+            log.info("JWT secret key validation passed ({} bytes)", decodedKey.length);
         } catch (IllegalArgumentException e) {
             throw new IllegalStateException("JWT secret key must be valid Base64 encoded", e);
         }
@@ -70,7 +70,7 @@ public class JwtSecurityValidator {
 
         // Access token should be short-lived (recommended: 15-60 minutes)
         if (accessTokenExpiration > 3600000) { // 1 hour
-            log.warn("⚠️  Access token expiration is longer than recommended ({}ms). Consider reducing to 15-60 minutes.",
+            log.warn("Access token expiration is longer than recommended ({}ms). Consider reducing to 15-60 minutes.",
                     accessTokenExpiration);
         }
 
@@ -81,15 +81,15 @@ public class JwtSecurityValidator {
             );
         }
 
-        log.info("✓ JWT expiration times validated");
-        log.info("  - Access token: {}ms ({}min)", accessTokenExpiration, accessTokenExpiration / 60000);
-        log.info("  - Refresh token: {}ms ({}h)", refreshTokenExpiration, refreshTokenExpiration / 3600000);
+        log.info("JWT expiration times validated");
+        log.info("  Access token: {}ms ({}min)", accessTokenExpiration, accessTokenExpiration / 60000);
+        log.info("  Refresh token: {}ms ({}h)", refreshTokenExpiration, refreshTokenExpiration / 3600000);
     }
 
     private void logSecurityConfiguration() {
         log.info("=".repeat(60));
         log.info("JWT Security Configuration:");
-        log.info("  Secret: {}", isDefaultSecret() ? "DEFAULT (⚠️  INSECURE)" : "CUSTOM (✓)");
+        log.info("  Secret: {}", isDefaultSecret() ? "DEFAULT (INSECURE)" : "CUSTOM (SECURE)");
         log.info("  Access Token TTL: {} minutes", jwtProperties.getExpiration() / 60000);
         log.info("  Refresh Token TTL: {} hours", jwtProperties.getRefreshToken().expiration() / 3600000);
         log.info("=".repeat(60));

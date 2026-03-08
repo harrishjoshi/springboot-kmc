@@ -18,6 +18,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -50,7 +51,9 @@ class BlogPostController {
             @ApiResponse(responseCode = "200", description = "Successfully retrieved blog posts",
                     content = @Content(schema = @Schema(implementation = Page.class))),
             @ApiResponse(responseCode = "401", description = "Unauthorized - JWT token is missing or invalid",
-                    content = @Content)
+                    content = @Content(schema = @Schema(implementation = ProblemDetail.class))),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(schema = @Schema(implementation = ProblemDetail.class)))
     })
     @GetMapping
     ResponseEntity<Page<BlogPostResponse>> getAllBlogPosts(
@@ -81,9 +84,11 @@ class BlogPostController {
             @ApiResponse(responseCode = "200", description = "Successfully retrieved blog posts",
                     content = @Content(schema = @Schema(implementation = List.class))),
             @ApiResponse(responseCode = "401", description = "Unauthorized - JWT token is missing or invalid",
-                    content = @Content),
+                    content = @Content(schema = @Schema(implementation = ProblemDetail.class))),
             @ApiResponse(responseCode = "404", description = "User not found",
-                    content = @Content)
+                    content = @Content(schema = @Schema(implementation = ProblemDetail.class))),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(schema = @Schema(implementation = ProblemDetail.class)))
     })
     @GetMapping("/user/{userId}")
     ResponseEntity<List<BlogPostResponse>> getBlogPostsByUser(@PathVariable Long userId) {
@@ -111,9 +116,11 @@ class BlogPostController {
             @ApiResponse(responseCode = "200", description = "Successfully retrieved blog post",
                     content = @Content(schema = @Schema(implementation = BlogPostResponse.class))),
             @ApiResponse(responseCode = "401", description = "Unauthorized - JWT token is missing or invalid",
-                    content = @Content),
+                    content = @Content(schema = @Schema(implementation = ProblemDetail.class))),
             @ApiResponse(responseCode = "404", description = "Blog post not found",
-                    content = @Content)
+                    content = @Content(schema = @Schema(implementation = ProblemDetail.class))),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(schema = @Schema(implementation = ProblemDetail.class)))
     })
     @GetMapping("/{id}")
     ResponseEntity<BlogPostResponse> getBlogPostById(@PathVariable Long id) {
@@ -139,10 +146,12 @@ class BlogPostController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Blog post created successfully",
                     content = @Content(schema = @Schema(implementation = BlogPostResponse.class))),
-            @ApiResponse(responseCode = "401", description = "Unauthorized - JWT token is missing or invalid",
-                    content = @Content),
             @ApiResponse(responseCode = "400", description = "Invalid input",
-                    content = @Content)
+                    content = @Content(schema = @Schema(implementation = ProblemDetail.class))),
+            @ApiResponse(responseCode = "401", description = "Unauthorized - JWT token is missing or invalid",
+                    content = @Content(schema = @Schema(implementation = ProblemDetail.class))),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(schema = @Schema(implementation = ProblemDetail.class)))
     })
     @PostMapping
     ResponseEntity<BlogPostResponse> createBlogPost(@Valid @RequestBody CreateBlogPostRequest request) {
@@ -175,12 +184,16 @@ class BlogPostController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Blog post updated successfully",
                     content = @Content(schema = @Schema(implementation = BlogPostResponse.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid input",
+                    content = @Content(schema = @Schema(implementation = ProblemDetail.class))),
             @ApiResponse(responseCode = "401", description = "Unauthorized - JWT token is missing or invalid",
-                    content = @Content),
+                    content = @Content(schema = @Schema(implementation = ProblemDetail.class))),
             @ApiResponse(responseCode = "403", description = "Forbidden - User is not the creator or an admin",
-                    content = @Content),
+                    content = @Content(schema = @Schema(implementation = ProblemDetail.class))),
             @ApiResponse(responseCode = "404", description = "Blog post not found",
-                    content = @Content)
+                    content = @Content(schema = @Schema(implementation = ProblemDetail.class))),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(schema = @Schema(implementation = ProblemDetail.class)))
     })
     @PutMapping("/{id}")
     @PreAuthorize("@blogPostService.isBlogPostCreator(#id) or hasRole('ADMIN')")
@@ -211,11 +224,13 @@ class BlogPostController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Blog post deleted successfully"),
             @ApiResponse(responseCode = "401", description = "Unauthorized - JWT token is missing or invalid",
-                    content = @Content),
+                    content = @Content(schema = @Schema(implementation = ProblemDetail.class))),
             @ApiResponse(responseCode = "403", description = "Forbidden - User is not the creator or an admin",
-                    content = @Content),
+                    content = @Content(schema = @Schema(implementation = ProblemDetail.class))),
             @ApiResponse(responseCode = "404", description = "Blog post not found",
-                    content = @Content)
+                    content = @Content(schema = @Schema(implementation = ProblemDetail.class))),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(schema = @Schema(implementation = ProblemDetail.class)))
     })
     @DeleteMapping("/{id}")
     @PreAuthorize("@blogPostService.isBlogPostCreator(#id) or hasRole('ADMIN')")
