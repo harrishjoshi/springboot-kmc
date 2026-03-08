@@ -6,6 +6,7 @@ import com.harrish.auth.util.MessageResolver;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +20,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.net.URI;
 import java.time.LocalDateTime;
 import java.util.stream.Collectors;
+
+import static net.logstash.logback.argument.StructuredArguments.kv;
 
 @RestControllerAdvice
 class GlobalExceptionHandler {
@@ -86,6 +89,16 @@ class GlobalExceptionHandler {
     ResponseEntity<ProblemDetail> handleNotFoundExceptions(
             Exception ex, HttpServletRequest request) {
         String message = resolveExceptionMessage(ex);
+        
+        log.warn("Resource not found", 
+                kv("errorType", ex.getClass().getSimpleName()),
+                kv("path", request.getRequestURI()),
+                kv("method", request.getMethod()),
+                kv("requestId", MDC.get("requestId")),
+                kv("userId", MDC.get("userId")),
+                kv("status", HttpStatus.NOT_FOUND.value()),
+                kv("message", message));
+        
         return buildProblemDetailResponse(HttpStatus.NOT_FOUND, message, request);
     }
 
@@ -93,6 +106,15 @@ class GlobalExceptionHandler {
     ResponseEntity<ProblemDetail> handleEmailAlreadyExistsException(
             EmailAlreadyExistsException ex, HttpServletRequest request) {
         String message = resolveMessage(ex);
+        
+        log.warn("Email already exists", 
+                kv("errorType", "EmailAlreadyExistsException"),
+                kv("path", request.getRequestURI()),
+                kv("method", request.getMethod()),
+                kv("requestId", MDC.get("requestId")),
+                kv("status", HttpStatus.CONFLICT.value()),
+                kv("message", message));
+        
         return buildProblemDetailResponse(HttpStatus.CONFLICT, message, request);
     }
 
@@ -100,29 +122,65 @@ class GlobalExceptionHandler {
     ResponseEntity<ProblemDetail> handleInvalidTokenException(
             InvalidTokenException ex, HttpServletRequest request) {
         String message = resolveMessage(ex);
+        
+        log.warn("Invalid JWT token", 
+                kv("errorType", "InvalidTokenException"),
+                kv("path", request.getRequestURI()),
+                kv("method", request.getMethod()),
+                kv("requestId", MDC.get("requestId")),
+                kv("userId", MDC.get("userId")),
+                kv("status", HttpStatus.UNAUTHORIZED.value()),
+                kv("message", message));
+        
         return buildProblemDetailResponse(HttpStatus.UNAUTHORIZED, message, request);
     }
 
     @ExceptionHandler(BadCredentialsException.class)
     ResponseEntity<ProblemDetail> handleBadCredentialsException(
             BadCredentialsException ex, HttpServletRequest request) {
-        log.debug("Bad credentials attempt: {}", ex.getMessage());
         String message = resolveMessage(AuthErrorCode.AUTH_BAD_CREDENTIALS.getMessageKey());
+        
+        log.warn("Authentication failed - bad credentials", 
+                kv("errorType", "BadCredentialsException"),
+                kv("path", request.getRequestURI()),
+                kv("method", request.getMethod()),
+                kv("requestId", MDC.get("requestId")),
+                kv("status", HttpStatus.UNAUTHORIZED.value()),
+                kv("message", message));
+        
         return buildProblemDetailResponse(HttpStatus.UNAUTHORIZED, message, request);
     }
 
     @ExceptionHandler(AccessDeniedException.class)
     ResponseEntity<ProblemDetail> handleAccessDeniedException(
             AccessDeniedException ex, HttpServletRequest request) {
-        log.debug("Access denied: {}", ex.getMessage());
         String message = resolveMessage(AuthErrorCode.AUTH_ACCESS_DENIED.getMessageKey());
+        
+        log.warn("Access denied", 
+                kv("errorType", "AccessDeniedException"),
+                kv("path", request.getRequestURI()),
+                kv("method", request.getMethod()),
+                kv("requestId", MDC.get("requestId")),
+                kv("userId", MDC.get("userId")),
+                kv("status", HttpStatus.FORBIDDEN.value()),
+                kv("message", message));
+        
         return buildProblemDetailResponse(HttpStatus.FORBIDDEN, message, request);
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
     ResponseEntity<ProblemDetail> handleIllegalArgumentException(
             IllegalArgumentException ex, HttpServletRequest request) {
-        log.error("An illegal argument exception occurred while processing request: ", ex);
+        log.error("Illegal argument exception", 
+                kv("errorType", "IllegalArgumentException"),
+                kv("path", request.getRequestURI()),
+                kv("method", request.getMethod()),
+                kv("requestId", MDC.get("requestId")),
+                kv("userId", MDC.get("userId")),
+                kv("status", HttpStatus.BAD_REQUEST.value()),
+                kv("message", ex.getMessage()),
+                ex);
+        
         return buildProblemDetailResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), request);
     }
 
@@ -130,9 +188,20 @@ class GlobalExceptionHandler {
     ResponseEntity<ProblemDetail> handleMethodArgumentNotValidException(
             MethodArgumentNotValidException ex, HttpServletRequest request) {
         String validationErrors = formatValidationErrors(ex);
+        String message = "Validation error: " + validationErrors;
+        
+        log.warn("Validation failed", 
+                kv("errorType", "MethodArgumentNotValidException"),
+                kv("path", request.getRequestURI()),
+                kv("method", request.getMethod()),
+                kv("requestId", MDC.get("requestId")),
+                kv("userId", MDC.get("userId")),
+                kv("status", HttpStatus.BAD_REQUEST.value()),
+                kv("validationErrors", validationErrors));
+        
         return buildProblemDetailResponse(
                 HttpStatus.BAD_REQUEST,
-                "Validation error: " + validationErrors,
+                message,
                 request
         );
     }
@@ -140,8 +209,18 @@ class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     ResponseEntity<ProblemDetail> handleGenericException(
             Exception ex, HttpServletRequest request) {
-        log.error("An exception occurred while processing the request: ", ex);
         String message = resolveMessage(GenericErrorCode.SOMETHING_WENT_WRONG.getMessageKey());
+        
+        log.error("Unhandled exception", 
+                kv("errorType", ex.getClass().getSimpleName()),
+                kv("path", request.getRequestURI()),
+                kv("method", request.getMethod()),
+                kv("requestId", MDC.get("requestId")),
+                kv("userId", MDC.get("userId")),
+                kv("status", HttpStatus.INTERNAL_SERVER_ERROR.value()),
+                kv("message", ex.getMessage()),
+                ex);
+        
         return buildProblemDetailResponse(HttpStatus.INTERNAL_SERVER_ERROR, message, request);
     }
 }

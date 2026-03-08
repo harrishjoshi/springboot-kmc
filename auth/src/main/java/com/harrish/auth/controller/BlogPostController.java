@@ -12,6 +12,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -24,10 +26,14 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.net.URI;
 import java.util.List;
 
+import static net.logstash.logback.argument.StructuredArguments.kv;
+
 @RestController
 @RequestMapping("/api/v1/blog-posts")
 @Tag(name = "Blog Posts", description = "Blog post management API")
 class BlogPostController {
+
+    private static final Logger log = LoggerFactory.getLogger(BlogPostController.class);
 
     private final BlogPostService blogPostService;
 
@@ -50,7 +56,20 @@ class BlogPostController {
     ResponseEntity<Page<BlogPostResponse>> getAllBlogPosts(
             @PageableDefault(sort = "createdAt") Pageable pageable
     ) {
-        return ResponseEntity.ok(blogPostService.getAllBlogPosts(pageable));
+        log.info("GET /api/v1/blog-posts", 
+                kv("method", "GET"),
+                kv("path", "/api/v1/blog-posts"),
+                kv("page", pageable.getPageNumber()),
+                kv("size", pageable.getPageSize()));
+        
+        Page<BlogPostResponse> response = blogPostService.getAllBlogPosts(pageable);
+        
+        log.info("Blog posts retrieved successfully", 
+                kv("path", "/api/v1/blog-posts"),
+                kv("status", 200),
+                kv("totalElements", response.getTotalElements()));
+        
+        return ResponseEntity.ok(response);
     }
 
     @Operation(
@@ -68,7 +87,19 @@ class BlogPostController {
     })
     @GetMapping("/user/{userId}")
     ResponseEntity<List<BlogPostResponse>> getBlogPostsByUser(@PathVariable Long userId) {
-        return ResponseEntity.ok(blogPostService.getBlogPostsByUser(userId));
+        log.info("GET /api/v1/blog-posts/user/{userId}", 
+                kv("method", "GET"),
+                kv("path", "/api/v1/blog-posts/user/" + userId),
+                kv("userId", userId));
+        
+        List<BlogPostResponse> response = blogPostService.getBlogPostsByUser(userId);
+        
+        log.info("User blog posts retrieved successfully", 
+                kv("path", "/api/v1/blog-posts/user/" + userId),
+                kv("status", 200),
+                kv("count", response.size()));
+        
+        return ResponseEntity.ok(response);
     }
 
     @Operation(
@@ -86,7 +117,18 @@ class BlogPostController {
     })
     @GetMapping("/{id}")
     ResponseEntity<BlogPostResponse> getBlogPostById(@PathVariable Long id) {
-        return ResponseEntity.ok(blogPostService.getBlogPostById(id));
+        log.info("GET /api/v1/blog-posts/{id}", 
+                kv("method", "GET"),
+                kv("path", "/api/v1/blog-posts/" + id),
+                kv("blogPostId", id));
+        
+        BlogPostResponse response = blogPostService.getBlogPostById(id);
+        
+        log.info("Blog post retrieved successfully", 
+                kv("path", "/api/v1/blog-posts/" + id),
+                kv("status", 200));
+        
+        return ResponseEntity.ok(response);
     }
 
     @Operation(
@@ -104,12 +146,24 @@ class BlogPostController {
     })
     @PostMapping
     ResponseEntity<BlogPostResponse> createBlogPost(@Valid @RequestBody CreateBlogPostRequest request) {
+        log.info("POST /api/v1/blog-posts", 
+                kv("method", "POST"),
+                kv("path", "/api/v1/blog-posts"));
+        
         BlogPostResponse response = blogPostService.createBlogPost(request);
+        
         // Build Location header with URI of the created resource (REST best practice)
         URI location = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{id}")
                 .buildAndExpand(response.getId())
                 .toUri();
+        
+        log.info("Blog post created successfully", 
+                kv("path", "/api/v1/blog-posts"),
+                kv("status", 201),
+                kv("blogPostId", response.getId()),
+                kv("location", location.toString()));
+        
         return ResponseEntity.created(location).body(response);
     }
 
@@ -134,7 +188,19 @@ class BlogPostController {
             @PathVariable Long id,
             @Valid @RequestBody UpdateBlogPostRequest request
     ) {
-        return ResponseEntity.ok(blogPostService.updateBlogPost(id, request));
+        log.info("PUT /api/v1/blog-posts/{id}", 
+                kv("method", "PUT"),
+                kv("path", "/api/v1/blog-posts/" + id),
+                kv("blogPostId", id));
+        
+        BlogPostResponse response = blogPostService.updateBlogPost(id, request);
+        
+        log.info("Blog post updated successfully", 
+                kv("path", "/api/v1/blog-posts/" + id),
+                kv("status", 200),
+                kv("blogPostId", id));
+        
+        return ResponseEntity.ok(response);
     }
 
     @Operation(
@@ -154,7 +220,18 @@ class BlogPostController {
     @DeleteMapping("/{id}")
     @PreAuthorize("@blogPostService.isBlogPostCreator(#id) or hasRole('ADMIN')")
     ResponseEntity<Void> deleteBlogPost(@PathVariable Long id) {
+        log.info("DELETE /api/v1/blog-posts/{id}", 
+                kv("method", "DELETE"),
+                kv("path", "/api/v1/blog-posts/" + id),
+                kv("blogPostId", id));
+        
         blogPostService.deleteBlogPost(id);
+        
+        log.info("Blog post deleted successfully", 
+                kv("path", "/api/v1/blog-posts/" + id),
+                kv("status", 204),
+                kv("blogPostId", id));
+        
         return ResponseEntity.noContent().build();
     }
 }
