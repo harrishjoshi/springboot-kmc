@@ -9,7 +9,10 @@ import lombok.experimental.SuperBuilder;
 import java.util.Objects;
 
 @Entity
-@Table(name = "blog_posts")
+@Table(name = "blog_posts", indexes = {
+    @Index(name = "idx_blog_post_created_by", columnList = "created_by_id"),
+    @Index(name = "idx_blog_post_created_at", columnList = "createdAt")
+})
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor

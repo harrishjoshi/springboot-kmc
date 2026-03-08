@@ -17,7 +17,9 @@ import java.util.Objects;
  * </ul>
  */
 @Entity
-@Table(name = "users")
+@Table(name = "users", indexes = {
+    @Index(name = "idx_user_email", columnList = "email", unique = true)
+})
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
