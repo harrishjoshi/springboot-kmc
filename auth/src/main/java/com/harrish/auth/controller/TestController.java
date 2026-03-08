@@ -2,6 +2,7 @@ package com.harrish.auth.controller;
 
 import com.harrish.auth.dto.MessageResponse;
 import com.harrish.auth.dto.UserInfoResponse;
+import com.harrish.auth.security.UserPrincipal;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -11,8 +12,8 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -47,13 +48,15 @@ class TestController {
                     content = @Content)
     })
     @GetMapping("/protected")
-    ResponseEntity<UserInfoResponse> protectedEndpoint() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    ResponseEntity<UserInfoResponse> protectedEndpoint(
+            @AuthenticationPrincipal UserPrincipal userPrincipal) {
 
         return ResponseEntity.ok(new UserInfoResponse(
                 "This is a protected endpoint",
-                authentication.getName(),
-                authentication.getAuthorities()
+                userPrincipal.getEmail(),
+                userPrincipal.getAuthorities().stream()
+                        .map(GrantedAuthority::getAuthority)
+                        .toList()
         ));
     }
 

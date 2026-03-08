@@ -1,24 +1,28 @@
 package com.harrish.auth.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
+import lombok.*;
 
-import java.util.Collection;
-import java.util.List;
+import java.util.Objects;
 
+/**
+ * User domain entity representing a user in the system.
+ * This is a pure JPA entity without Spring Security concerns.
+ * For Spring Security integration, use {@link com.harrish.auth.security.UserPrincipal}.
+ * 
+ * <p>Note: This entity does not expose setters. Use domain methods for mutations:
+ * <ul>
+ *   <li>{@link #changePassword(String)} - to update password</li>
+ *   <li>{@link #updateProfile(String, String)} - to update profile info</li>
+ * </ul>
+ */
 @Entity
 @Table(name = "users")
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class User implements UserDetails {
+public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,36 +41,59 @@ public class User implements UserDetails {
     private String password;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private Role role;
 
+    /**
+     * Changes the user's password.
+     * 
+     * @param newPassword the new password (should already be encoded)
+     */
+    public void changePassword(String newPassword) {
+        if (newPassword == null || newPassword.isBlank()) {
+            throw new IllegalArgumentException("Password cannot be blank");
+        }
+        this.password = newPassword;
+    }
+
+    /**
+     * Updates the user's profile information.
+     * 
+     * @param firstName the new first name
+     * @param lastName the new last name
+     */
+    public void updateProfile(String firstName, String lastName) {
+        if (firstName == null || firstName.isBlank()) {
+            throw new IllegalArgumentException("First name cannot be blank");
+        }
+        if (lastName == null || lastName.isBlank()) {
+            throw new IllegalArgumentException("Last name cannot be blank");
+        }
+        this.firstName = firstName;
+        this.lastName = lastName;
+    }
+    
+    // Use only id for equals/hashCode to work properly with JPA proxies
     @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof User user)) return false;
+        return id != null && Objects.equals(id, user.id);
     }
 
     @Override
-    public String getUsername() {
-        // Email is used as the username
-        return email;
+    public int hashCode() {
+        return Objects.hashCode(id);
     }
 
     @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return true;
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", email='" + email + '\'' +
+                ", role=" + role +
+                '}';
     }
 }
